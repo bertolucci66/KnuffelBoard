@@ -125,4 +125,17 @@ Hinweise:
 - API‑Routen bleiben unter `/api/...` erreichbar.
 - Der Pfad zum Build wird erwartet unter `frontend/dist/knuffelboard` (Angular Standard in diesem Projekt).
 
+## Lizenz
+
+Dieses Projekt wird unter der MIT-Lizenz veröffentlicht. Siehe die Datei LICENSE im Repository-Root.
+
+### Drittanbieter-Lizenzen (Auszug)
+- Angular © Google – MIT License
+- Express – MIT License
+- Tailwind CSS – MIT License
+- DaisyUI – MIT License
+- better-sqlite3 – MIT License
+
+Weitere Abhängigkeiten sind jeweils MIT/ISC/Apache-2.0 kompatibel; Details siehe package.json und ggf. die jeweiligen Projekte.
+
 Viel Spaß mit KnuffelBoard! 🎲

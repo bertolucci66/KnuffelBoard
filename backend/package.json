@@ -4,6 +4,7 @@
   "description": "KnuffelBoard backend (Express + SQLite)",
   "main": "index.js",
   "type": "module",
+  "license": "MIT",
   "scripts": {
     "start": "node index.js",
     "dev": "nodemon index.js"

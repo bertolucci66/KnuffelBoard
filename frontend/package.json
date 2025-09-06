@@ -2,6 +2,7 @@
   "name": "knuffelboard-frontend",
   "version": "1.0.0",
   "private": true,
+  "license": "MIT",
   "description": "KnuffelBoard frontend (Angular 18 + Tailwind + DaisyUI)",
   "scripts": {
     "ng": "ng",
