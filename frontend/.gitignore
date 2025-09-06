@@ -1,0 +1,26 @@
+# Frontend (Angular)
+
+# Node
+node_modules/
+package-lock.json
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Angular build outputs
+/dist/
+/.angular/cache/
+/.angular/*
+
+# Coverage
+coverage/
+
+# Environment files
+.env
+.env.*
+*.local
+
+# Misc temp
+.tmp/
+.temp/

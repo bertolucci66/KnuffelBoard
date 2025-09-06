@@ -1,0 +1,34 @@
+# Root gitignore for KnuffelBoard
+
+# OS files
+.DS_Store
+Thumbs.db
+Icon?
+*.swp
+*.swo
+
+# Node
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+package-lock.json
+
+# Env files
+.env
+.env.*
+*.local
+
+# Coverage
+coverage/
+
+# Build artifacts (if any at root)
+dist/
+.tmp/
+.temp/
+
+# IDE/editor
+.vscode/
+.idea/
+*.iml
