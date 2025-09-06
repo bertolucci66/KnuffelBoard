@@ -1,0 +1,12 @@
+KnuffelBoard
+Copyright (c) 2025 Norbert Gutbrod
+
+This product includes software developed by third parties:
+
+- Angular (https://angular.io/) - MIT License
+- Express (https://expressjs.com/) - MIT License
+- Tailwind CSS (https://tailwindcss.com/) - MIT License
+- DaisyUI (https://daisyui.com/) - MIT License
+- better-sqlite3 (https://github.com/WiseLibs/better-sqlite3) - MIT License
+
+This NOTICE file is provided for informational purposes and does not modify the terms of the LICENSE.

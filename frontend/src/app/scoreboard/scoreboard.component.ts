@@ -76,6 +76,20 @@ const LOWER = ['three_kind','four_kind','full_house','small_straight','large_str
                   </div>
                 </td>
               </tr>
+              <!-- Kniffel Bonus row -->
+              <tr class="border-b border-base-300">
+                <td class="font-semibold">Kniffel‑Bonus</td>
+                <td *ngFor="let p of g.players" class="align-middle">
+                  <div class="flex items-center gap-2">
+                    <button class="btn btn-xs" [class.btn-ghost]="!canAdjustBonus(p.id)" [class.btn-outline]="canAdjustBonus(p.id)"
+                      [disabled]="!canAdjustBonus(p.id) || bonusValue(p.id) <= 0" (click)="adjustBonus(p.id,-50)">− 50</button>
+                    <input class="input input-md input-bordered w-28 blue-outlined" [value]="bonusValue(p.id)" readonly disabled />
+                    <button class="btn btn-xs" [class.btn-ghost]="!canAdjustBonus(p.id)" [class.btn-outline]="canAdjustBonus(p.id)"
+                      [disabled]="!canAdjustBonus(p.id)" (click)="adjustBonus(p.id,50)">+ 50</button>
+                  </div>
+                  <div class="text-xs opacity-60" *ngIf="!canAdjustBonus(p.id)">Benötigt gültigen Kniffel (50)</div>
+                </td>
+              </tr>
               <tr class="bg-base-200">
                 <td class="font-semibold">Unterer Teil Summe</td>
                 <td class="text-xl font-bold" *ngFor="let p of g.players">{{ g.computed[p.id]?.lower ?? 0 }}</td>
@@ -155,7 +169,7 @@ export class ScoreboardComponent implements OnInit, OnDestroy {
     const m: Record<string,string> = {
       ones:"1'er", twos:"2'er", threes:"3'er", fours:"4'er", fives:"5'er", sixes:"6'er",
       three_kind:'Dreierpasch', four_kind:'Viererpasch', full_house:'Full House (25)',
-      small_straight:'Kleine Straße (30)', large_straight:'Große Straße (40)', kniffel:'Kniffel (50)', chance:'Chance'
+      small_straight:'Kleine Straße (30)', large_straight:'Große Straße (40)', kniffel:'Kniffel (50)', chance:'Chance', kniffel_bonus:'Kniffel‑Bonus'
     };
     return m[c] || c;
   }
@@ -183,6 +197,7 @@ export class ScoreboardComponent implements OnInit, OnDestroy {
       case 'large_straight': return value === 0 || value === 40;
       case 'kniffel': return value === 0 || value === 50;
       case 'chance': return value >= 0 && value <= 30;
+      case 'kniffel_bonus': return value >= 0 && value % 50 === 0;
       default: return true;
     }
   }
@@ -220,6 +235,38 @@ export class ScoreboardComponent implements OnInit, OnDestroy {
   strike(playerId: number, category: string) {
     this.cellValues[playerId][category] = '0';
     this.commit(playerId, category);
+  }
+
+  bonusValue(playerId: number): number {
+    const g = this.game();
+    return (g?.scores?.[playerId]?.['kniffel_bonus'] as number) ?? 0;
+  }
+  hasKniffel(playerId: number): boolean {
+    const g = this.game();
+    return (g?.scores?.[playerId]?.['kniffel'] as number) === 50;
+  }
+  canAdjustBonus(playerId: number): boolean {
+    const g = this.game();
+    if (!g || g.status !== 'active') return false;
+    return this.hasKniffel(playerId);
+  }
+  adjustBonus(playerId: number, delta: number) {
+    if (!this.canAdjustBonus(playerId)) return;
+    const current = this.bonusValue(playerId);
+    const next = Math.max(0, current + delta);
+    // Only allow multiples of 50
+    const normalized = Math.round(next / 50) * 50;
+    const g = this.game();
+    if (!g) return;
+    if (normalized === current) return;
+    this.gameService.setScore(g.id, playerId, 'kniffel_bonus', normalized).subscribe(res => {
+      const cur = this.game(); if (!cur) return;
+      cur.scores[playerId] = cur.scores[playerId] || {} as any;
+      (cur.scores as any)[playerId]['kniffel_bonus'] = normalized;
+      (cur as any).computed = res.computed;
+      (cur as any).allFilled = res.allFilled;
+      this.game.set({ ...cur });
+    });
   }
 
   private upperTarget(category: string): number | null {

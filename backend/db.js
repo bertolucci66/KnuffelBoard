@@ -78,7 +78,7 @@ export function nowIso() {
 }
 
 export const CATEGORIES_UPPER = ['ones','twos','threes','fours','fives','sixes'];
-export const CATEGORIES_LOWER = ['three_kind','four_kind','full_house','small_straight','large_straight','kniffel','chance'];
+export const CATEGORIES_LOWER = ['three_kind','four_kind','full_house','small_straight','large_straight','kniffel','chance','kniffel_bonus'];
 export const ALL_CATEGORIES = [...CATEGORIES_UPPER, ...CATEGORIES_LOWER];
 
 export function calcUpperSum(scoresByCat) {

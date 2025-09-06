@@ -81,6 +81,14 @@ router.post('/', (req, res) => {
     tx();
 
     const playersOut = getPlayersForGame(gameId);
+    // Seed kniffel_bonus=0 for each player so finishing the game is not blocked
+    const seed = db.prepare('INSERT INTO scores (game_id, player_id, category, value) VALUES (?, ?, ?, ?)');
+    const seedTx = db.transaction(() => {
+      for (const p of playersOut) {
+        try { seed.run(gameId, p.id, 'kniffel_bonus', 0); } catch {}
+      }
+    });
+    seedTx();
     res.json({ id: gameId, started_at, status: 'active', players: playersOut });
   } catch (e) {
     console.error('POST /api/games failed:', e);
@@ -97,6 +105,18 @@ router.get('/:id', (req, res) => {
     if (!game) return res.status(404).json({ error: 'not found' });
     const players = getPlayersForGame(id);
     const scores = getScoresForGame(id);
+    // Ensure kniffel_bonus exists for each player (defaults to 0)
+    for (const p of players) {
+      if (typeof (scores[p.id]?.['kniffel_bonus']) !== 'number') {
+        db.prepare(`INSERT INTO scores (game_id, player_id, category, value)
+                    VALUES (?, ?, 'kniffel_bonus', 0)
+                    ON CONFLICT(game_id, player_id, category)
+                    DO UPDATE SET value = COALESCE(value, 0)`).run(id, p.id);
+        // refresh local scores map
+        scores[p.id] = scores[p.id] || {};
+        scores[p.id]['kniffel_bonus'] = 0;
+      }
+    }
     const computed = computePerPlayerTotals(players, scores);
     const allFilled = isAllFilled(players, scores);
     res.json({ ...game, players, scores, computed, allFilled, categories: ALL_CATEGORIES });
