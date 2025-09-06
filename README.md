@@ -102,4 +102,27 @@ Dann im Browser: http://localhost:4200
 - Backend in Produktion ohne Auto-Reload: `npm start` (im Ordner `backend`)
 - Frontend Build (Production): `npm run build` (im Ordner `frontend`), Ausgabe unter `frontend/dist/knuffelboard`
 
+## Produktion: Frontend über Backend ausliefern
+Ab sofort kann der produzierte Frontend‑Build direkt vom Backend unter `/` ausgeliefert werden.
+
+Schritte:
+1. Frontend bauen
+   ```bash
+   cd frontend
+   npm install
+   npm run build
+   ```
+2. Backend starten (liefert API unter `/api` und das Frontend unter `/`)
+   ```bash
+   cd ../backend
+   npm install
+   npm start
+   ```
+3. Im Browser öffnen: `http://localhost:3000`
+
+Hinweise:
+- SPA‑Fallback ist aktiv: Nicht‑API‑Routen werden auf `index.html` gemappt.
+- API‑Routen bleiben unter `/api/...` erreichbar.
+- Der Pfad zum Build wird erwartet unter `frontend/dist/knuffelboard` (Angular Standard in diesem Projekt).
+
 Viel Spaß mit KnuffelBoard! 🎲

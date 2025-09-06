@@ -14,7 +14,7 @@ import { GameService } from '../services/game.service';
       <app-game-setup (startGame)="onStart($event)"></app-game-setup>
     </ng-container>
     <ng-template #board>
-      <app-scoreboard [gameId]="gameId()!"></app-scoreboard>
+      <app-scoreboard [gameId]="gameId()!" (abort)="onAbort()"></app-scoreboard>
     </ng-template>
   </div>
   `
@@ -25,5 +25,10 @@ export class HomeComponent {
 
   onStart(players: string[]) {
     this.gameService.startGame(players).subscribe(res => this.gameId.set(Number(res.id)));
+  }
+
+  onAbort() {
+    // Simply clear current game; unfinished results are not saved to history
+    this.gameId.set(null);
   }
 }

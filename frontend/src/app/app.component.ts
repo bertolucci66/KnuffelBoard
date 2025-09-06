@@ -9,18 +9,21 @@ import { StatsModalComponent } from './stats-modal/stats-modal.component';
   standalone: true,
   imports: [CommonModule, RouterOutlet, HighscoreModalComponent, StatsModalComponent],
   template: `
-    <div class="navbar bg-base-100 shadow">
+    <div class="navbar bg-base-100/90 backdrop-blur sticky top-0 z-50 shadow-lg border-b border-base-300">
       <div class="flex-1">
-        <a class="btn btn-ghost text-xl" (click)="goHome()">🎲 KnuffelBoard</a>
+        <a class="btn btn-ghost normal-case text-2xl font-extrabold" (click)="goHome()">
+          <span class="dice-chip mr-2"><span class="dice-pip"></span></span>
+          KnuffelBoard
+        </a>
       </div>
       <div class="flex-none gap-2 pr-4">
-        <button class="btn btn-sm" (click)="showHighscores()">Highscores</button>
-        <button class="btn btn-sm" (click)="showStats()">Statistiken</button>
-        <button class="btn btn-sm" (click)="showHistory()">Historie</button>
+        <button class="btn btn-sm btn-ghost" (click)="showHighscores()">Highscores</button>
+        <button class="btn btn-sm btn-ghost" (click)="showStats()">Statistiken</button>
+        <button class="btn btn-sm btn-primary" (click)="showHistory()">Historie</button>
       </div>
     </div>
 
-    <main class="container py-6">
+    <main class="container py-3 md:py-4">
       <router-outlet></router-outlet>
     </main>
 

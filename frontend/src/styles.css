@@ -4,5 +4,63 @@
 
 html, body { height: 100%; }
 
-/* DaisyUI overrides (optional) */
-.container { @apply mx-auto px-4; }
+/* Felt background: subtle texture + vignette */
+body {
+  /* deep felt base */
+  background-color: #0a5b2a;
+  /* layered gradients to emulate fabric and vignette */
+  background-image:
+    radial-gradient(circle at 20% 20%, rgba(255,255,255,0.06), transparent 35%),
+    radial-gradient(circle at 80% 30%, rgba(255,255,255,0.05), transparent 40%),
+    radial-gradient(circle at 50% 80%, rgba(0,0,0,0.15), transparent 50%),
+    repeating-linear-gradient(125deg, rgba(255,255,255,0.03) 0 2px, rgba(0,0,0,0.03) 2px 4px);
+  background-blend-mode: overlay, overlay, multiply, normal;
+}
+
+/* Typography scale for better readability */
+.h1, h1 { @apply text-3xl md:text-4xl font-extrabold; }
+.h2, h2 { @apply text-2xl md:text-3xl font-bold; }
+.h3, h3 { @apply text-xl md:text-2xl font-semibold; }
+.label-text { @apply text-lg; }
+
+/* Utility containers */
+.container { @apply mx-auto px-4 max-w-6xl; }
+.card { @apply bg-base-100 shadow-xl border border-base-300; }
+
+/* Paper-styled panels & modals to contrast against felt */
+.paper-card {
+  @apply bg-base-100 shadow-xl border border-base-300 rounded-xl;
+  background-image:
+    radial-gradient( circle at 10% 10%, rgba(0,0,0,0.03), transparent 30%),
+    radial-gradient( circle at 90% 0%, rgba(0,0,0,0.02), transparent 25%),
+    linear-gradient(180deg, rgba(0,0,0,0.04), rgba(0,0,0,0.02));
+}
+.paper-modal {
+  @apply bg-base-100 border border-base-300;
+  background-image:
+    radial-gradient( circle at 20% 0%, rgba(0,0,0,0.03), transparent 35%),
+    linear-gradient(180deg, rgba(0,0,0,0.03), rgba(0,0,0,0.01));
+}
+
+/* Subtle blue outlines for inputs and score sheet */
+.blue-outlined { border-color: #7aa7e9 !important; box-shadow: 0 0 0 1.5px rgba(122,167,233,0.35) inset; }
+.input.blue-outlined:focus { border-color: #5b8fdc !important; box-shadow: 0 0 0 2px rgba(91,143,220,0.45) inset; }
+
+/* Compact mode to reduce vertical spacing, primarily for the scoreboard */
+.compact .card-body { padding: 0.5rem; }
+.compact .table { @apply table-sm; }
+.compact thead th { @apply py-2; }
+.compact tbody td { @apply py-1; }
+.compact .input { @apply input-sm; }
+.compact .btn { @apply btn-sm; }
+.compact .btn.btn-lg { @apply btn-sm; }
+.compact .text-lg { font-size: 1rem; line-height: 1.5rem; }
+.compact .text-xl { font-size: 1.125rem; line-height: 1.75rem; }
+.compact .text-2xl { font-size: 1.25rem; line-height: 1.75rem; }
+.compact .p-4 { padding: 0.75rem; }
+.compact .p-3 { padding: 0.5rem; }
+.compact .gap-3 { gap: 0.5rem; }
+
+/* Fancy dice chip (can be used for accents) */
+.dice-chip { @apply inline-flex items-center justify-center w-10 h-10 rounded-lg bg-white text-black shadow-lg; }
+.dice-pip { @apply w-2 h-2 bg-black rounded-full inline-block; }
