@@ -45,12 +45,16 @@ const LOWER = ['three_kind','four_kind','full_house','small_straight','large_str
                     <input class="input input-md input-bordered w-28 blue-outlined" type="number" min="0" inputmode="numeric" pattern="[0-9]*"
                       [disabled]="isLocked(p.id,c)" [(ngModel)]="cellValues[p.id][c]" (blur)="commit(p.id,c)" (keyup.enter)="commit(p.id,c)" />
                     <button class="btn btn-xs btn-ghost" [disabled]="isLocked(p.id,c)" (click)="strike(p.id,c)" title="Streichen (0)">✖︎</button>
+                    <span *ngIf="upperTendency(p.id, c) as t" class="badge badge-sm px-2 py-0.5 ml-1" [class.badge-success]="t.kind==='over'" [class.badge-warning]="t.kind==='under'" [class.badge-ghost]="t.kind==='on'">{{ t.label }}</span>
                   </div>
                 </td>
               </tr>
               <tr class="bg-base-200">
                 <td class="font-semibold">Oberer Teil Summe</td>
-                <td class="text-xl font-bold" *ngFor="let p of g.players">{{ g.computed[p.id]?.upper ?? 0 }}</td>
+                <td class="text-xl font-bold" *ngFor="let p of g.players">
+                  {{ g.computed[p.id]?.upper ?? 0 }}
+                  <span *ngIf="upperSumTendency(p.id) as t" class="badge badge-sm px-2 py-0.5 ml-2" [class.badge-success]="t.kind==='over'" [class.badge-warning]="t.kind==='under'" [class.badge-ghost]="t.kind==='on'">{{ t.label }}</span>
+                </td>
               </tr>
               <tr class="bg-base-200 border-b-2 border-base-300">
                 <td class="font-semibold">Bonus</td>
@@ -210,6 +214,49 @@ export class ScoreboardComponent implements OnInit {
     this.commit(playerId, category);
   }
 
+  private upperTarget(category: string): number | null {
+    const idx = this.upper.indexOf(category);
+    if (idx === -1) return null;
+    const face = idx + 1;
+    return face * 3; // target is three of this face
+  }
+
+  upperTendency(playerId: number, category: string): { kind:'under'|'on'|'over'; label:string; delta:number } | null {
+    const g = this.game();
+    if (!g) return null;
+    const v = g.scores?.[playerId]?.[category];
+    if (typeof v !== 'number') return null; // no info until a value is set
+    const tgt = this.upperTarget(category);
+    if (tgt == null) return null;
+    const delta = v - tgt;
+    if (delta === 0) return { kind: 'on', label: 'im Plan', delta };
+    if (delta > 0) return { kind: 'over', label: `darüber (+${delta})`, delta };
+    return { kind: 'under', label: `darunter (${delta})`, delta };
+  }
+
+  upperSumTendency(playerId: number): { kind:'under'|'on'|'over'; label:string; delta:number } | null {
+    const g = this.game();
+    if (!g) return null;
+    const s = g.scores?.[playerId] || {} as Record<string, number>;
+    // Only count categories that already have a number filled
+    let target = 0;
+    let any = false;
+    for (let i = 0; i < this.upper.length; i++) {
+      const cat = this.upper[i];
+      const val = s[cat];
+      if (typeof val === 'number') {
+        any = true;
+        target += (i + 1) * 3;
+      }
+    }
+    if (!any) return null; // no tendency until at least one upper cell filled
+    const current = g.computed[playerId]?.upper ?? 0;
+    const delta = current - target;
+    if (delta === 0) return { kind: 'on', label: 'im Plan', delta };
+    if (delta > 0) return { kind: 'over', label: `darüber (+${delta})`, delta };
+    return { kind: 'under', label: `darunter (${delta})`, delta };
+  }
+ 
   finish() {
     const g = this.game();
     if (!g) return;
