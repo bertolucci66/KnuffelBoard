@@ -1,0 +1,31 @@
+<dialog class="modal" [open]="open" aria-labelledby="modal-title">
+  <div class="modal-box paper-modal relative overflow-hidden">
+    <!-- Winner overlay animation -->
+    <div *ngIf="showWin && topName" class="absolute inset-0 flex flex-col items-center justify-center z-20 pointer-events-none">
+      <div class="win-glow"></div>
+      <div class="text-6xl md:text-7xl animate-trophy mb-3">🏆</div>
+      <div class="text-2xl md:text-3xl font-extrabold text-center drop-shadow-lg">
+        Gewinner: <span class="text-primary">{{ topName }}</span>
+      </div>
+      <div class="sr-only" aria-live="polite">Gewinner: {{ topName }}</div>
+    </div>
+
+    <!-- Confetti pieces -->
+    <ng-container *ngIf="showWin">
+      <div *ngFor="let c of confettiPieces; let i = index" class="confetti" [ngStyle]="confettiStyle(i)"></div>
+    </ng-container>
+
+    <h3 id="modal-title" class="h2 flex items-center gap-2 relative z-10"><span class="text-primary">🏆</span> Endwertung</h3>
+    <div class="py-3 relative z-10">
+      <ol class="list-decimal pl-6 space-y-2">
+        <li *ngFor="let r of ranking" class="flex justify-between items-center">
+          <span class="font-semibold" [class.text-primary]="r.place===1">{{r.place}}. {{r.name}}</span>
+          <span class="badge badge-lg" [class.badge-primary]="r.place===1">{{r.total}}</span>
+        </li>
+      </ol>
+    </div>
+    <div class="modal-action relative z-10">
+      <button class="btn btn-primary" (click)="onClose?.()">Schließen</button>
+    </div>
+  </div>
+</dialog>

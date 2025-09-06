@@ -6,36 +6,7 @@ import { HistoryService, HistoryGame } from '../services/history.service';
   selector: 'app-history-view',
   standalone: true,
   imports: [CommonModule],
-  template: `
-  <div class="card paper-card">
-    <div class="card-body">
-      <h3 class="h2 mb-4">Vergangene Spiele</h3>
-      <div class="overflow-x-auto">
-        <table class="table table-md">
-          <thead>
-            <tr>
-              <th>Datum</th>
-              <th>Spieler & Scores</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr *ngFor="let g of history">
-              <td>{{ g.ended_at | date:'dd.MM.yyyy HH:mm:ss' }}</td>
-              <td>
-                <div class="flex flex-wrap gap-2">
-                  <span class="badge" *ngFor="let p of g.players">{{p.name}}: {{p.total}}</span>
-                </div>
-              </td>
-            </tr>
-            <tr *ngIf="history.length===0">
-              <td colspan="2" class="opacity-70">Keine Einträge.</td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-    </div>
-  </div>
-  `
+  templateUrl: './history-view.component.html',
 })
 export class HistoryViewComponent implements OnInit {
   private historyService = inject(HistoryService);

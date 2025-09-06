@@ -8,16 +8,7 @@ import { GameService } from '../services/game.service';
   selector: 'app-home',
   standalone: true,
   imports: [CommonModule, GameSetupComponent, ScoreboardComponent],
-  template: `
-  <div class="space-y-4">
-    <ng-container *ngIf="!gameId(); else board">
-      <app-game-setup (startGame)="onStart($event)"></app-game-setup>
-    </ng-container>
-    <ng-template #board>
-      <app-scoreboard [gameId]="gameId()!" (abort)="onAbort()"></app-scoreboard>
-    </ng-template>
-  </div>
-  `
+  templateUrl: './home.component.html',
 })
 export class HomeComponent {
   private gameService = inject(GameService);
