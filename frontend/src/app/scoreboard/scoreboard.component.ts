@@ -1,4 +1,4 @@
-import { Component, Input, OnInit, inject, signal, Output, EventEmitter } from '@angular/core';
+import { Component, Input, OnInit, OnDestroy, inject, signal, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { GameService, GameState } from '../services/game.service';
@@ -15,8 +15,11 @@ const LOWER = ['three_kind','four_kind','full_house','small_straight','large_str
   <div *ngIf="game() as g" class="overflow-x-auto card paper-card compact">
     <div class="card-body p-0">
       <div class="flex items-center justify-between p-3 border-b border-base-300 bg-base-200/60">
-        <div class="h3 m-0">Spielzettel</div>
+        <div class="h3 m-0">Spielzettel
+          <div class="text-xs opacity-70 font-normal">Erstellt von Norbert Gutbrod</div>
+        </div>
         <div class="flex items-center gap-2">
+          <span class="badge badge-ghost" *ngIf="g.status==='active'">Laufzeit: {{ elapsed() }}</span>
           <button class="btn btn-error btn-sm" (click)="requestAbort()" title="Neues Spiel starten – aktuelles verwerfen">Neues Spiel</button>
           <span class="opacity-70 hidden md:inline">{{ unlocked ? 'Entsperrt – Änderungen erlaubt' : 'Gesperrt – zum Bearbeiten entsperren' }}</span>
           <button class="btn btn-sm" [class.btn-warning]="unlocked" [class.btn-ghost]="!unlocked" (click)="toggleUnlock()">
@@ -100,7 +103,7 @@ const LOWER = ['three_kind','four_kind','full_house','small_straight','large_str
   <app-ranking-modal [open]="isRanking()" [ranking]="ranking()" [onClose]="closeRanking"></app-ranking-modal>
   `
 })
-export class ScoreboardComponent implements OnInit {
+export class ScoreboardComponent implements OnInit, OnDestroy {
   private gameService = inject(GameService);
   @Input() gameId!: number;
   game = signal<GameState | null>(null);
@@ -115,9 +118,14 @@ export class ScoreboardComponent implements OnInit {
   cellValues: Record<number, Record<string, string>> = {};
   // sheet unlock toggle (default locked behaviour)
   unlocked = false;
-
+  // timer tick to trigger view updates
+  private intervalId: any;
+  nowTick = signal(0);
+ 
   ngOnInit(): void {
     this.reload();
+    // update every second while component is alive
+    this.intervalId = setInterval(() => this.nowTick.update(v => v + 1), 1000);
   }
 
   private initBuffer(g: GameState) {
@@ -271,4 +279,22 @@ export class ScoreboardComponent implements OnInit {
     const confirmed = confirm('Neues Spiel starten? Aktuelles Spiel wird verworfen und nicht gespeichert.');
     if (confirmed) this.abort.emit();
   }
-}
+
+  ngOnDestroy(): void {
+    if (this.intervalId) clearInterval(this.intervalId);
+  }
+
+  // Format elapsed time since game start
+  elapsed(): string {
+    const g = this.game();
+    if (!g?.started_at) return '00:00:00';
+    const start = new Date(g.started_at).getTime();
+    const now = Date.now(); // nowTick() keeps change detection alive
+    void this.nowTick();
+    let sec = Math.max(0, Math.floor((now - start) / 1000));
+    const h = Math.floor(sec / 3600); sec -= h * 3600;
+    const m = Math.floor(sec / 60); sec -= m * 60;
+    const pad = (n:number) => n.toString().padStart(2,'0');
+    return `${pad(h)}:${pad(m)}:${pad(sec)}`;
+  }
+ }
