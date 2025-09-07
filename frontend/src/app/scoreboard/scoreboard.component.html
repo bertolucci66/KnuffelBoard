@@ -24,10 +24,12 @@
         </thead>
         <tbody>
           <ng-container>
+            <!-- Dark separator above upper section -->
+            <tr><td [attr.colspan]="1 + g.players.length" class="p-0"><div class="border-t-4 border-base-300/90"></div></td></tr>
             <tr class="bg-base-200/70">
               <td class="font-bold" [attr.colspan]="1 + g.players.length">Oberer Teil</td>
             </tr>
-            <tr *ngFor="let c of upper" class="border-b border-base-300">
+            <tr *ngFor="let c of upper; let i = index" class="border-b border-base-300" [ngClass]="{ 'bg-base-100': i % 2 === 0, 'bg-base-200': i % 2 === 1 }">
               <td class="font-semibold">{{ label(c) }}</td>
               <td *ngFor="let p of g.players" class="align-middle">
                 <div class="flex items-center gap-2">
@@ -38,27 +40,31 @@
                 </div>
               </td>
             </tr>
-            <tr class="bg-base-200">
+            <tr class="bg-base-300 border-y-2 border-base-400">
               <td class="font-semibold">Oberer Teil Summe</td>
-              <td class="text-xl font-bold" *ngFor="let p of g.players">
+              <td class="text-xl font-extrabold" *ngFor="let p of g.players">
                 {{ g.computed[p.id]?.upper ?? 0 }}
                 <span *ngIf="upperSumTendency(p.id) as t" class="badge badge-sm px-2 py-0.5 ml-2" [class.badge-success]="t.kind==='over'" [class.badge-warning]="t.kind==='under'" [class.badge-ghost]="t.kind==='on'">{{ t.label }}</span>
               </td>
             </tr>
-            <tr class="bg-base-200 border-b-2 border-base-300">
+            <tr class="bg-base-300 border-b-2 border-base-300">
               <td class="font-semibold">Bonus</td>
               <td class="text-xl font-bold" *ngFor="let p of g.players">{{ g.computed[p.id]?.bonus ?? 0 }}</td>
             </tr>
-            <tr class="bg-base-200/70 border-t-2 border-base-300">
+            <!-- Dark separator above lower section -->
+            <tr><td [attr.colspan]="1 + g.players.length" class="p-0"><div class="border-t-4 border-base-300/90"></div></td></tr>
+            <tr class="bg-base-200/70">
               <td class="font-bold" [attr.colspan]="1 + g.players.length">Unterer Teil</td>
             </tr>
-            <tr *ngFor="let c of lower" class="border-b border-base-300">
+            <tr *ngFor="let c of lower; let i = index" class="border-b border-base-300" [ngClass]="{ 'bg-base-100': i % 2 === 0, 'bg-base-200': i % 2 === 1 }">
               <td class="font-semibold">{{ label(c) }}</td>
               <td *ngFor="let p of g.players" class="align-middle">
                 <div class="flex items-center gap-2">
                   <input class="input input-md input-bordered w-28 blue-outlined" [class.scored]="isLocked(p.id,c)" type="number" min="0" inputmode="numeric" pattern="[0-9]*"
                          [disabled]="isLocked(p.id,c)" [(ngModel)]="cellValues[p.id][c]" (blur)="commit(p.id,c)" (keyup.enter)="commit(p.id,c)" />
                   <button class="btn btn-xs btn-ghost" [disabled]="isLocked(p.id,c)" (click)="strike(p.id,c)" title="Streichen (0)">✖︎</button>
+                  <button *ngIf="isFixedCategory(c)" class="btn btn-xs btn-outline" [disabled]="isLocked(p.id,c)"
+                          (click)="quickSet(p.id,c)" [title]="quickSetTitle(c)" aria-label="{{ quickSetTitle(c) }}">{{ fixedValue(c) }}</button>
                 </div>
               </td>
             </tr>
@@ -75,11 +81,11 @@
                 <div class="text-xs opacity-60" *ngIf="!canAdjustBonus(p.id)">Benötigt gültigen Kniffel (50)</div>
               </td>
             </tr>
-            <tr class="bg-base-200">
+            <tr class="bg-base-300 border-y-2 border-base-400">
               <td class="font-semibold">Unterer Teil Summe</td>
-              <td class="text-xl font-bold" *ngFor="let p of g.players">{{ g.computed[p.id]?.lower ?? 0 }}</td>
+              <td class="text-xl font-extrabold tracking-wide" *ngFor="let p of g.players">{{ g.computed[p.id]?.lower ?? 0 }}</td>
             </tr>
-            <tr class="bg-base-300 font-extrabold">
+            <tr class="bg-base-300 font-extrabold border-t-2 border-base-300">
               <td>Gesamt</td>
               <td class="text-2xl" *ngFor="let p of g.players">{{ g.computed[p.id]?.total ?? 0 }}</td>
             </tr>
@@ -93,8 +99,13 @@
         <div>- „Streichen“ setzt den Wert auf 0 und sperrt das Feld.</div>
       </div>
       <div class="flex items-center gap-3 self-end md:self-auto">
-        <span class="opacity-70" *ngIf="!g.allFilled">Bitte alle Felder ausfüllen.</span>
-        <button class="btn btn-primary btn-lg" [disabled]="!g.allFilled" (click)="finish()">Spiel beenden & werten</button>
+        <ng-container *ngIf="g.status === 'finished'; else activeActions">
+          <button class="btn btn-primary btn-lg" (click)="startNewGame()">Neues Spiel</button>
+        </ng-container>
+        <ng-template #activeActions>
+          <span class="opacity-70" *ngIf="!g.allFilled">Bitte alle Felder ausfüllen.</span>
+          <button class="btn btn-primary btn-lg" [disabled]="!g.allFilled" (click)="finish()">Spiel beenden & werten</button>
+        </ng-template>
       </div>
     </div>
   </div>

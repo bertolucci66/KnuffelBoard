@@ -1,4 +1,4 @@
-<div class="card paper-card">
+<div class="card paper-card relative">
   <div class="card-body">
     <h2 class="card-title h2 mb-2">Spiel einrichten</h2>
     <p class="opacity-80 mb-4">Bis zu vier Spieler. Namen sind optional, verbessern aber die Übersicht.</p>
@@ -8,9 +8,14 @@
         <input [(ngModel)]="players[i]" class="input input-bordered input-lg blue-outlined" placeholder="Name (optional)" />
       </div>
     </div>
-    <div class="flex items-center gap-3 pt-2">
-      <button class="btn btn-primary btn-lg" [disabled]="validCount===0" (click)="start()">Spiel starten</button>
-      <span class="opacity-70">Bitte 1–4 Namen eingeben.</span>
+    <div class="flex flex-col sm:flex-row items-start sm:items-center gap-3 pt-2 justify-between">
+      <div class="flex items-center gap-3">
+        <button class="btn btn-primary btn-lg" [disabled]="validCount===0" (click)="start()">Spiel starten</button>
+        <span class="opacity-70">Bitte 1–4 Namen eingeben.</span>
+      </div>
+      <div *ngIf="canResume" class="flex items-center">
+        <button class="btn btn-success btn-lg" (click)="resumeGame.emit()">Unterbrochenes Spiel fortsetzen</button>
+      </div>
     </div>
   </div>
 </div>

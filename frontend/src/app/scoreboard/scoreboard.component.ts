@@ -74,6 +74,11 @@ export class ScoreboardComponent implements OnInit, OnDestroy {
     this.gameService.getGame(this.gameId).subscribe(g => {
       this.game.set(g);
       this.initBuffer(g);
+      // persist active game id for resume if needed
+      try {
+        if (g.status === 'active') localStorage.setItem('activeGameId', String(g.id));
+        else localStorage.removeItem('activeGameId');
+      } catch {}
     });
   }
 
@@ -133,6 +138,30 @@ export class ScoreboardComponent implements OnInit, OnDestroy {
     this.commit(playerId, category);
   }
 
+  // Quick-set support for fixed-score categories
+  isFixedCategory(category: string): boolean {
+    return category === 'full_house' || category === 'small_straight' || category === 'large_straight' || category === 'kniffel';
+  }
+  fixedValue(category: string): number {
+    switch (category) {
+      case 'full_house': return 25;
+      case 'small_straight': return 30;
+      case 'large_straight': return 40;
+      case 'kniffel': return 50;
+      default: return 0;
+    }
+  }
+  quickSetTitle(category: string): string {
+    const v = this.fixedValue(category);
+    return `Wert setzen (${v})`;
+  }
+  quickSet(playerId: number, category: string) {
+    const v = this.fixedValue(category);
+    if (!v) return;
+    this.cellValues[playerId][category] = String(v);
+    this.commit(playerId, category);
+  }
+
   bonusValue(playerId: number): number {
     const g = this.game();
     return (g?.scores?.[playerId]?.['kniffel_bonus'] as number) ?? 0;
@@ -180,9 +209,9 @@ export class ScoreboardComponent implements OnInit, OnDestroy {
     const tgt = this.upperTarget(category);
     if (tgt == null) return null;
     const delta = v - tgt;
-    if (delta === 0) return { kind: 'on', label: 'im Plan', delta };
-    if (delta > 0) return { kind: 'over', label: `darüber (+${delta})`, delta };
-    return { kind: 'under', label: `darunter (${delta})`, delta };
+    if (delta === 0) return { kind: 'on', label: '0', delta };
+    if (delta > 0) return { kind: 'over', label: `+${delta}` , delta };
+    return { kind: 'under', label: `${delta}`, delta };
   }
 
   upperSumTendency(playerId: number): { kind:'under'|'on'|'over'; label:string; delta:number } | null {
@@ -203,9 +232,9 @@ export class ScoreboardComponent implements OnInit, OnDestroy {
     if (!any) return null; // no tendency until at least one upper cell filled
     const current = g.computed[playerId]?.upper ?? 0;
     const delta = current - target;
-    if (delta === 0) return { kind: 'on', label: 'im Plan', delta };
-    if (delta > 0) return { kind: 'over', label: `darüber (+${delta})`, delta };
-    return { kind: 'under', label: `darunter (${delta})`, delta };
+    if (delta === 0) return { kind: 'on', label: '0', delta };
+    if (delta > 0) return { kind: 'over', label: `+${delta}`, delta };
+    return { kind: 'under', label: `${delta}`, delta };
   }
  
   finish() {
@@ -215,12 +244,20 @@ export class ScoreboardComponent implements OnInit, OnDestroy {
       this.ranking.set(r.ranking as RankingEntry[]);
       this.isRanking.set(true);
       this.reload();
+      try { localStorage.removeItem('activeGameId'); } catch {}
     });
   }
 
   requestAbort() {
     const confirmed = confirm('Neues Spiel starten? Aktuelles Spiel wird verworfen und nicht gespeichert.');
     if (confirmed) this.abort.emit();
+  }
+
+  // Start a new game after finishing (reuse existing abort output to parent)
+  startNewGame() {
+    // After a finished game, we always start a fresh one without warning dialog
+    try { localStorage.removeItem('activeGameId'); } catch {}
+    this.abort.emit();
   }
 
   ngOnDestroy(): void {
