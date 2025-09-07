@@ -1,0 +1,50 @@
+<dialog class="modal" [open]="open">
+  <div class="modal-box paper-modal max-w-3xl">
+    <h3 class="h2 mb-3 flex items-center gap-2"><span class="text-primary">🏆</span> Highscores</h3>
+    <div class="overflow-x-auto max-h-[70vh]">
+      <table class="table table-sm">
+        <thead>
+          <tr>
+            <th>Platz</th>
+            <th>Spieler</th>
+            <th class="text-right">Punkte</th>
+            <th>Datum</th>
+          </tr>
+        </thead>
+        <tbody>
+          <ng-container *ngFor="let h of highscores; let i = index">
+            <!-- Top 3 styled rows -->
+            <tr *ngIf="i < 3" [class.bg-gold]="i===0" [class.bg-silver]="i===1" [class.bg-bronze]="i===2" class="text-base-content/90">
+              <td class="font-bold">
+                <span *ngIf="i===0">🥇</span>
+                <span *ngIf="i===1">🥈</span>
+                <span *ngIf="i===2">🥉</span>
+                <span class="ml-1">{{ i+1 }}</span>
+              </td>
+              <td class="font-semibold">{{ h.player_name }}</td>
+              <td class="text-right font-extrabold">{{ h.score }}</td>
+              <td class="opacity-80">{{ h.achieved_at | date:'dd.MM.yyyy HH:mm:ss' }}</td>
+            </tr>
+            <!-- Spacer after third entry -->
+            <tr *ngIf="i===2">
+              <td colspan="4" class="py-1"></td>
+            </tr>
+            <!-- Remaining rows -->
+            <tr *ngIf="i>=3">
+              <td class="opacity-80">{{ i+1 }}</td>
+              <td>{{ h.player_name }}</td>
+              <td class="text-right font-semibold">{{ h.score }}</td>
+              <td class="opacity-70">{{ h.achieved_at | date:'dd.MM.yyyy HH:mm:ss' }}</td>
+            </tr>
+          </ng-container>
+          <tr *ngIf="highscores.length===0">
+            <td colspan="4" class="opacity-70">Keine Einträge.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="modal-action">
+      <button class="btn btn-primary" (click)="close()">Schließen</button>
+    </div>
+  </div>
+</dialog>
