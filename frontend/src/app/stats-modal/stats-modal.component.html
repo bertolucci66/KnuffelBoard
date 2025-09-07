@@ -1,6 +1,6 @@
 <dialog class="modal" [open]="open">
   <div class="modal-box paper-modal max-w-3xl">
-    <h3 class="h2 mb-3">Spieler-Statistiken</h3>
+    <h3 class="h2 mb-3 flex items-center gap-2"><span class="text-primary">📊</span> Statistiken</h3>
 
     <div class="grid grid-cols-1 md:grid-cols-3 gap-3 items-end">
       <div class="form-control md:col-span-2">
@@ -13,25 +13,47 @@
       </div>
     </div>
 
-    <div class="mt-4 overflow-x-auto">
-      <table class="table table-zebra table-sm">
+    <div class="mt-4 overflow-x-auto max-h-[70vh]">
+      <table class="table table-sm">
         <thead>
           <tr>
+            <th>Platz</th>
             <th>Spieler</th>
             <th class="text-right">Ø Punkte</th>
             <th class="text-right">Höchste Wertung</th>
             <th class="text-right">Spiele</th>
+                        <th class="text-right">Siege</th>
           </tr>
         </thead>
         <tbody>
-          <tr *ngFor="let r of rows">
-            <td class="font-semibold">{{ r.name }}</td>
-            <td class="text-right">{{ r.averageScore }}</td>
-            <td class="text-right">{{ r.bestScore }}</td>
-            <td class="text-right">{{ r.games }}</td>
-          </tr>
+          <ng-container *ngFor="let r of rows; let i = index">
+            <tr *ngIf="i < 3" [class.bg-gold]="i===0" [class.bg-silver]="i===1" [class.bg-bronze]="i===2" class="text-base-content/90">
+              <td class="font-bold">
+                <span *ngIf="i===0">🥇</span>
+                <span *ngIf="i===1">🥈</span>
+                <span *ngIf="i===2">🥉</span>
+                <span class="ml-1">{{ i+1 }}</span>
+              </td>
+              <td class="font-semibold">{{ r.name }}</td>
+              <td class="text-right font-extrabold">{{ r.averageScore }}</td>
+              <td class="text-right">{{ r.bestScore }}</td>
+              <td class="text-right">{{ r.games }}</td>
+              <td class="text-right">{{ r.wins }}</td>
+            </tr>
+            <tr *ngIf="i===2">
+              <td colspan="6" class="py-1"></td>
+            </tr>
+            <tr *ngIf="i>=3">
+              <td class="opacity-80">{{ i+1 }}</td>
+              <td>{{ r.name }}</td>
+              <td class="text-right font-semibold">{{ r.averageScore }}</td>
+              <td class="text-right">{{ r.bestScore }}</td>
+              <td class="text-right">{{ r.games }}</td>
+              <td class="text-right">{{ r.wins }}</td>
+            </tr>
+          </ng-container>
           <tr *ngIf="rows.length===0">
-            <td colspan="4" class="opacity-70">Keine Spieler gefunden.</td>
+            <td colspan="6" class="opacity-70">Keine Spieler gefunden.</td>
           </tr>
         </tbody>
       </table>

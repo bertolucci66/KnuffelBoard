@@ -1,25 +1,53 @@
 <div class="card paper-card">
   <div class="card-body">
-    <h3 class="h2 mb-4">Vergangene Spiele</h3>
-    <div class="overflow-x-auto">
-      <table class="table table-md">
+    <h3 class="h2 mb-3 flex items-center gap-2"><span class="text-primary">🗂️</span> Historie</h3>
+
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-3 items-end mb-2">
+      <div class="form-control md:col-span-2">
+        <label class="label"><span class="label-text">Nach Spieler filtern</span></label>
+        <input class="input input-bordered blue-outlined" [(ngModel)]="filter" (ngModelChange)="onFilterChange()" placeholder="Name eingeben..." />
+        <div class="text-xs opacity-60 mt-1">Automatische Filterung nach kurzer Zeit</div>
+      </div>
+      <div class="text-right">
+        <a routerLink="/" class="btn">Zurück</a>
+      </div>
+    </div>
+
+    <div class="overflow-x-auto max-h-[75vh]">
+      <table class="table table-sm">
         <thead>
           <tr>
             <th>Datum</th>
-            <th>Spieler & Scores</th>
+            <th>Platzierungen</th>
+            <th>Spieler & Punkte</th>
           </tr>
         </thead>
         <tbody>
-          <tr *ngFor="let g of history">
-            <td>{{ g.ended_at | date:'dd.MM.yyyy HH:mm:ss' }}</td>
-            <td>
+          <tr *ngFor="let g of history; let gi = index">
+            <td class="whitespace-nowrap align-top">{{ g.ended_at | date:'dd.MM.yyyy HH:mm' }}</td>
+            <td class="align-top">
+              <div class="space-y-1">
+                <div *ngFor="let p of g.players; let i = index" class="flex items-center gap-2" [class.opacity-80]="i>=3">
+                  <span class="w-6 text-right font-semibold">
+                    <ng-container *ngIf="i===0">🥇</ng-container>
+                    <ng-container *ngIf="i===1">🥈</ng-container>
+                    <ng-container *ngIf="i===2">🥉</ng-container>
+                    <ng-container *ngIf="i>2">{{ i+1 }}</ng-container>
+                  </span>
+                  <span class="badge" [class.bg-gold]="i===0" [class.bg-silver]="i===1" [class.bg-bronze]="i===2" [class.badge-ghost]="i>2">{{ p.name }}</span>
+                  <span class="ml-auto badge badge-outline">{{ p.total }}</span>
+                </div>
+                <div *ngIf="g.players.length>3" class="pt-1"></div>
+              </div>
+            </td>
+            <td class="align-top">
               <div class="flex flex-wrap gap-2">
                 <span class="badge" *ngFor="let p of g.players">{{p.name}}: {{p.total}}</span>
               </div>
             </td>
           </tr>
           <tr *ngIf="history.length===0">
-            <td colspan="2" class="opacity-70">Keine Einträge.</td>
+            <td colspan="3" class="opacity-70">Keine Einträge.</td>
           </tr>
         </tbody>
       </table>

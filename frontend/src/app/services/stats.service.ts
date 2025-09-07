@@ -3,7 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 
 export type PlayerStats = { player: string; games: number; bestScore: number; averageScore: number; top3: Array<{ game_id:number; ended_at:string; total:number }> };
-export type PlayerRow = { name: string; games: number; bestScore: number; averageScore: number };
+export type PlayerRow = { name: string; games: number; bestScore: number; averageScore: number; wins: number };
 
 const API_BASE = '/api';
 

@@ -42,14 +42,51 @@ router.get('/list', (req, res) => {
       )
     `).all();
 
+    const getFinishedGames = db.prepare(`
+      SELECT g.id as game_id
+      FROM games g
+      WHERE g.status = 'finished'
+    `);
+    const getPlayersForGame = db.prepare(`
+      SELECT p.id as player_id
+      FROM game_players gp
+      JOIN players p ON p.id = gp.player_id
+      WHERE gp.game_id = ?
+    `);
+    const getScores = db.prepare('SELECT category, value FROM scores WHERE game_id = ? AND player_id = ?');
+    const C_UPPER = ['ones','twos','threes','fours','fives','sixes'];
+
+    // Precompute wins per player across all finished games (tie-friendly)
+    const winsMap = new Map(); // player_id -> wins
+    const finished = getFinishedGames.all();
+    for (const g of finished) {
+      const plist = getPlayersForGame.all(g.game_id);
+      let perPlayerTotals = [];
+      for (const pl of plist) {
+        const cats = getScores.all(g.game_id, pl.player_id);
+        const byCat = Object.fromEntries(cats.map(c => [c.category, c.value]));
+        const sum = Object.values(byCat).reduce((a, v) => a + Number(v || 0), 0);
+        const upper = C_UPPER.reduce((a,c)=>a+(byCat[c]||0),0);
+        const bonus = upper >= 63 ? 35 : 0;
+        const total = sum + bonus;
+        perPlayerTotals.push({ player_id: pl.player_id, total });
+      }
+      if (perPlayerTotals.length) {
+        const max = Math.max(...perPlayerTotals.map(x => x.total));
+        for (const x of perPlayerTotals) {
+          if (x.total === max) {
+            winsMap.set(x.player_id, (winsMap.get(x.player_id) || 0) + 1);
+          }
+        }
+      }
+    }
+
     const getPlayerGames = db.prepare(`
-      SELECT g.id as game_id, g.ended_at
+      SELECT g.id as game_id
       FROM games g
       JOIN game_players gp ON gp.game_id = g.id
       WHERE gp.player_id = ? AND g.status = 'finished'
     `);
-    const getScores = db.prepare('SELECT category, value FROM scores WHERE game_id = ? AND player_id = ?');
-    const C_UPPER = ['ones','twos','threes','fours','fives','sixes'];
 
     const rows = players.map(p => {
       const games = getPlayerGames.all(p.player_id);
@@ -65,7 +102,8 @@ router.get('/list', (req, res) => {
       const gamesCount = totals.length;
       const best = gamesCount ? Math.max(...totals) : 0;
       const avg = gamesCount ? Math.round(totals.reduce((a,b)=>a+b,0) / gamesCount) : 0;
-      return { name: p.player_name, games: gamesCount, bestScore: best, averageScore: avg };
+      const wins = winsMap.get(p.player_id) || 0;
+      return { name: p.player_name, games: gamesCount, bestScore: best, averageScore: avg, wins };
     }).filter(r => !q || r.name.toLowerCase().includes(q));
 
     rows.sort((a,b)=> b.averageScore - a.averageScore || a.name.localeCompare(b.name));
