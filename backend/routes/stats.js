@@ -29,6 +29,53 @@ function totalsForPlayer(playerName) {
   });
 }
 
+// GET /api/stats/list - all players with averages (desc by average), optional ?q= filter
+router.get('/list', (req, res) => {
+  try {
+    const q = String(req.query.q || '').trim().toLowerCase();
+    const players = db.prepare(`
+      SELECT p.name as player_name, p.id as player_id
+      FROM players p
+      WHERE EXISTS (
+        SELECT 1 FROM game_players gp JOIN games g ON g.id = gp.game_id
+        WHERE gp.player_id = p.id AND g.status = 'finished'
+      )
+    `).all();
+
+    const getPlayerGames = db.prepare(`
+      SELECT g.id as game_id, g.ended_at
+      FROM games g
+      JOIN game_players gp ON gp.game_id = g.id
+      WHERE gp.player_id = ? AND g.status = 'finished'
+    `);
+    const getScores = db.prepare('SELECT category, value FROM scores WHERE game_id = ? AND player_id = ?');
+    const C_UPPER = ['ones','twos','threes','fours','fives','sixes'];
+
+    const rows = players.map(p => {
+      const games = getPlayerGames.all(p.player_id);
+      let totals = [];
+      for (const g of games) {
+        const cats = getScores.all(g.game_id, p.player_id);
+        const byCat = Object.fromEntries(cats.map(c => [c.category, c.value]));
+        const sum = Object.values(byCat).reduce((a, v) => a + Number(v || 0), 0);
+        const upper = C_UPPER.reduce((a,c)=>a+(byCat[c]||0),0);
+        const bonus = upper >= 63 ? 35 : 0;
+        totals.push(sum + bonus);
+      }
+      const gamesCount = totals.length;
+      const best = gamesCount ? Math.max(...totals) : 0;
+      const avg = gamesCount ? Math.round(totals.reduce((a,b)=>a+b,0) / gamesCount) : 0;
+      return { name: p.player_name, games: gamesCount, bestScore: best, averageScore: avg };
+    }).filter(r => !q || r.name.toLowerCase().includes(q));
+
+    rows.sort((a,b)=> b.averageScore - a.averageScore || a.name.localeCompare(b.name));
+    res.json(rows);
+  } catch (e) {
+    console.error(e);
+    res.status(500).json({ error: 'failed to load player list' });
+  }
+});
+
 // GET /api/stats/:playerName - stats for a player
 router.get('/:playerName', (req, res) => {
   try {

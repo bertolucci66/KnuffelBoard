@@ -31,7 +31,7 @@
               <td class="font-semibold">{{ label(c) }}</td>
               <td *ngFor="let p of g.players" class="align-middle">
                 <div class="flex items-center gap-2">
-                  <input class="input input-md input-bordered w-28 blue-outlined" type="number" min="0" inputmode="numeric" pattern="[0-9]*"
+                  <input class="input input-md input-bordered w-28 blue-outlined" [class.scored]="isLocked(p.id,c)" type="number" min="0" inputmode="numeric" pattern="[0-9]*"
                          [disabled]="isLocked(p.id,c)" [(ngModel)]="cellValues[p.id][c]" (blur)="commit(p.id,c)" (keyup.enter)="commit(p.id,c)" />
                   <button class="btn btn-xs btn-ghost" [disabled]="isLocked(p.id,c)" (click)="strike(p.id,c)" title="Streichen (0)">✖︎</button>
                   <span *ngIf="upperTendency(p.id, c) as t" class="badge badge-sm px-2 py-0.5 ml-1" [class.badge-success]="t.kind==='over'" [class.badge-warning]="t.kind==='under'" [class.badge-ghost]="t.kind==='on'">{{ t.label }}</span>
@@ -56,7 +56,7 @@
               <td class="font-semibold">{{ label(c) }}</td>
               <td *ngFor="let p of g.players" class="align-middle">
                 <div class="flex items-center gap-2">
-                  <input class="input input-md input-bordered w-28 blue-outlined" type="number" min="0" inputmode="numeric" pattern="[0-9]*"
+                  <input class="input input-md input-bordered w-28 blue-outlined" [class.scored]="isLocked(p.id,c)" type="number" min="0" inputmode="numeric" pattern="[0-9]*"
                          [disabled]="isLocked(p.id,c)" [(ngModel)]="cellValues[p.id][c]" (blur)="commit(p.id,c)" (keyup.enter)="commit(p.id,c)" />
                   <button class="btn btn-xs btn-ghost" [disabled]="isLocked(p.id,c)" (click)="strike(p.id,c)" title="Streichen (0)">✖︎</button>
                 </div>

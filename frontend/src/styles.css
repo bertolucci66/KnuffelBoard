@@ -45,6 +45,9 @@ body {
 /* Subtle blue outlines for inputs and score sheet */
 .blue-outlined { border-color: #7aa7e9 !important; box-shadow: 0 0 0 1.5px rgba(122,167,233,0.35) inset; }
 .input.blue-outlined:focus { border-color: #5b8fdc !important; box-shadow: 0 0 0 2px rgba(91,143,220,0.45) inset; }
+/* Higher contrast for already scored (locked) fields */
+.scored { background-color: #eef5ff !important; color: #0b3a75 !important; border-color: #5b8fdc !important; }
+.scored:disabled { opacity: 1 !important; }
 
 /* Compact mode to reduce vertical spacing, primarily for the scoreboard */
 .compact .card-body { padding: 0.5rem; }
@@ -64,3 +67,8 @@ body {
 /* Fancy dice chip (can be used for accents) */
 .dice-chip { @apply inline-flex items-center justify-center w-10 h-10 rounded-lg bg-white text-black shadow-lg; }
 .dice-pip { @apply w-2 h-2 bg-black rounded-full inline-block; }
+
+/* Highscore podium backgrounds */
+.bg-gold { background-color: #D4AF37 !important; color: #141414 !important; }
+.bg-silver { background-color: #C0C0C0 !important; color: #141414 !important; }
+.bg-bronze { background-color: #CD7F32 !important; color: #141414 !important; }

@@ -1,42 +1,22 @@
 import { Component, Input, OnChanges, SimpleChanges, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { StatsService, PlayerStats } from '../services/stats.service';
+import { StatsService, PlayerStats, PlayerRow } from '../services/stats.service';
 
 @Component({
   selector: 'app-stats-modal',
   standalone: true,
   imports: [CommonModule, FormsModule],
-  template: `
-  <dialog class="modal" [open]="open">
-    <div class="modal-box">
-      <h3 class="font-bold text-lg">Spieler-Statistiken</h3>
-      <div class="py-2">
-        <div class="form-control">
-          <label class="label"><span class="label-text">Spielername</span></label>
-          <input class="input input-bordered" [(ngModel)]="name" placeholder="Name" />
-        </div>
-        <div class="mt-2">
-          <button class="btn btn-sm btn-primary" (click)="load()" [disabled]="!name.trim()">Laden</button>
-        </div>
-        <div class="mt-4" *ngIf="stats">
-          <p><b>{{stats.player}}</b>: {{stats.games}} Spiele, Bestscore {{stats.bestScore}}, Ø {{stats.averageScore}}</p>
-          <h4 class="font-semibold mt-2">Top 3</h4>
-          <ul class="list-disc pl-6">
-            <li *ngFor="let t of stats.top3">{{t.total}} <span class="opacity-60">({{t.ended_at | date:'dd.MM.yyyy HH:mm:ss'}})</span></li>
-          </ul>
-        </div>
-      </div>
-      <div class="modal-action">
-        <button class="btn" (click)="close()">Schließen</button>
-      </div>
-    </div>
-  </dialog>
-  `
+  templateUrl: './stats-modal.component.html'
 })
-export class StatsModalComponent implements OnChanges {
+export class StatsModalComponent implements OnChanges { 
   private svc = inject(StatsService);
   @Input() open = false;
+  // filter & listing
+  filter = '';
+  rows: PlayerRow[] = [];
+  debounceId: any;
+  // legacy per-player detailed stats (kept if needed somewhere)
   name = '';
   stats: PlayerStats | null = null;
   @Input() onClose: (()=>void) | undefined;
@@ -45,9 +25,24 @@ export class StatsModalComponent implements OnChanges {
     if (changes['open'] && this.open) {
       this.stats = null;
       this.name = '';
+      this.filter = '';
+      this.rows = [];
+      this.scheduleLoad();
     }
   }
 
+  onFilterChange() { this.scheduleLoad(); }
+
+  private scheduleLoad() {
+    clearTimeout(this.debounceId);
+    this.debounceId = setTimeout(() => this.fetch(), 250);
+  }
+
+  private fetch() {
+    this.svc.listAll(this.filter).subscribe(rows => this.rows = rows);
+  }
+
+  // Optional: still allow detailed lookup by exact name (not used in UI now)
   load() {
     const n = this.name.trim();
     if (!n) return;

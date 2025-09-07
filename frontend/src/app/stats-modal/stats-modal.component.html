@@ -1,24 +1,40 @@
 <dialog class="modal" [open]="open">
-  <div class="modal-box">
-    <h3 class="font-bold text-lg">Spieler-Statistiken</h3>
-    <div class="py-2">
-      <div class="form-control">
-        <label class="label"><span class="label-text">Spielername</span></label>
-        <input class="input input-bordered" [(ngModel)]="name" placeholder="Name" />
+  <div class="modal-box paper-modal max-w-3xl">
+    <h3 class="h2 mb-3">Spieler-Statistiken</h3>
+
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-3 items-end">
+      <div class="form-control md:col-span-2">
+        <label class="label"><span class="label-text">Spieler filtern</span></label>
+        <input class="input input-bordered blue-outlined" [(ngModel)]="filter" (ngModelChange)="onFilterChange()" placeholder="Name eingeben..." />
+        <div class="text-xs opacity-60 mt-1">Automatische Filterung nach kurzer Zeit</div>
       </div>
-      <div class="mt-2">
-        <button class="btn btn-sm btn-primary" (click)="load()" [disabled]="!name.trim()">Laden</button>
-      </div>
-      <div class="mt-4" *ngIf="stats">
-        <p><b>{{stats.player}}</b>: {{stats.games}} Spiele, Bestscore {{stats.bestScore}}, Ø {{stats.averageScore}}</p>
-        <h4 class="font-semibold mt-2">Top 3</h4>
-        <ul class="list-disc pl-6">
-          <li *ngFor="let t of stats.top3">{{t.total}} <span class="opacity-60">({{t.ended_at | date:'dd.MM.yyyy HH:mm:ss'}})</span></li>
-        </ul>
+      <div class="text-right">
+        <button class="btn" (click)="close()">Schließen</button>
       </div>
     </div>
-    <div class="modal-action">
-      <button class="btn" (click)="close()">Schließen</button>
+
+    <div class="mt-4 overflow-x-auto">
+      <table class="table table-zebra table-sm">
+        <thead>
+          <tr>
+            <th>Spieler</th>
+            <th class="text-right">Ø Punkte</th>
+            <th class="text-right">Höchste Wertung</th>
+            <th class="text-right">Spiele</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let r of rows">
+            <td class="font-semibold">{{ r.name }}</td>
+            <td class="text-right">{{ r.averageScore }}</td>
+            <td class="text-right">{{ r.bestScore }}</td>
+            <td class="text-right">{{ r.games }}</td>
+          </tr>
+          <tr *ngIf="rows.length===0">
+            <td colspan="4" class="opacity-70">Keine Spieler gefunden.</td>
+          </tr>
+        </tbody>
+      </table>
     </div>
   </div>
 </dialog>
