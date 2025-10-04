@@ -15,8 +15,8 @@ export class AppComponent {
   isHighscores = signal(false);
   isStats = signal(false);
   // Displayed version info (can be updated per release)
-  version = '1.3.0';
-  versionDate = '07.09.2025';
+  version = '1.4.0';
+  versionDate = '04.10.2025';
 
   goHome() { this.router.navigateByUrl('/'); }
   showHighscores() { this.isHighscores.set(true); }
