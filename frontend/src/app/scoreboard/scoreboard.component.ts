@@ -21,6 +21,10 @@ export class ScoreboardComponent implements OnInit, OnDestroy {
   lower = LOWER;
   isRanking = signal(false);
   ranking = signal<RankingEntry[]>([]);
+  
+  // Player info modal state
+  isPlayerInfoOpen = signal(false);
+  selectedPlayerId = signal<number | null>(null);
 
   @Output() abort = new EventEmitter<void>();
 
@@ -60,6 +64,39 @@ export class ScoreboardComponent implements OnInit, OnDestroy {
   }
 
   closeRanking = () => this.isRanking.set(false);
+  
+  // Player info modal methods
+  showPlayerInfo(playerId: number) {
+    this.selectedPlayerId.set(playerId);
+    this.isPlayerInfoOpen.set(true);
+  }
+  
+  closePlayerInfo() {
+    this.isPlayerInfoOpen.set(false);
+    this.selectedPlayerId.set(null);
+  }
+  
+  getPlayerName(playerId: number | null): string {
+    if (playerId === null) return '';
+    const g = this.game();
+    if (!g) return '';
+    const player = g.players.find(p => p.id === playerId);
+    return player?.name || '';
+  }
+  
+  getOpenCategories(playerId: number | null, section: 'upper' | 'lower'): string[] {
+    if (playerId === null) return [];
+    const g = this.game();
+    if (!g) return [];
+    
+    const categories = section === 'upper' ? this.upper : this.lower;
+    const playerScores = g.scores?.[playerId] || {};
+    
+    return categories.filter(category => {
+      const score = playerScores[category];
+      return typeof score !== 'number';
+    });
+  }
 
   label(c: string) {
     const m: Record<string,string> = {
