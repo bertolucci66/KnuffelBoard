@@ -1,23 +1,81 @@
-<div *ngIf="game() as g" class="overflow-x-auto card paper-card compact">
-  <div class="card-body p-0">
-    <div class="flex items-center justify-between p-3 border-b border-base-300 bg-base-200/60">
-      <div class="h3 m-0">Spielzettel
-        <div class="text-xs opacity-70 font-normal">Erstellt von Norbert Gutbrod</div>
-      </div>
-      <div class="flex items-center gap-2">
-        <span class="badge badge-ghost" *ngIf="g.status==='active'">Laufzeit: {{ elapsed() }}</span>
-        <button class="btn btn-error btn-sm" (click)="requestAbort()" title="Neues Spiel starten – aktuelles verwerfen">Neues Spiel</button>
-        <span class="opacity-70 hidden md:inline">{{ unlocked ? 'Entsperrt – Änderungen erlaubt' : 'Gesperrt – zum Bearbeiten entsperren' }}</span>
-        <button class="btn btn-sm" [class.btn-warning]="unlocked" [class.btn-ghost]="!unlocked" (click)="toggleUnlock()">
-          <span class="mr-1">{{ unlocked ? 'Sperren' : 'Entsperren' }}</span>
-          <span>{{ unlocked ? '🔒' : '🔓' }}</span>
-        </button>
+<div *ngIf="game() as g" class="h-screen flex flex-col w-full">
+  <!-- Header -->
+  <div class="flex items-center justify-between p-3 border-b border-base-300 bg-base-200/60 flex-shrink-0">
+    <div class="h3 m-0">Spielzettel
+      <div class="text-xs opacity-70 font-normal">Erstellt von Norbert Gutbrod</div>
+    </div>
+    <div class="flex items-center gap-1 sm:gap-2">
+      <span class="badge badge-ghost text-xs sm:text-sm" *ngIf="g.status==='active'">Laufzeit: {{ elapsed() }}</span>
+      <button class="btn btn-error btn-sm sm:btn-md min-h-10" (click)="requestAbort()" title="Neues Spiel starten – aktuelles verwerfen">
+        <span class="hidden sm:inline">Neues Spiel</span>
+        <span class="sm:hidden">Neu</span>
+      </button>
+      <span class="opacity-70 hidden lg:inline text-sm">{{ unlocked ? 'Entsperrt – Änderungen erlaubt' : 'Gesperrt – zum Bearbeiten entsperren' }}</span>
+      <button class="btn btn-sm sm:btn-md min-h-10" [class.btn-warning]="unlocked" [class.btn-ghost]="!unlocked" (click)="toggleUnlock()">
+        <span class="mr-1 hidden sm:inline">{{ unlocked ? 'Sperren' : 'Entsperren' }}</span>
+        <span>{{ unlocked ? '🔒' : '🔓' }}</span>
+      </button>
+    </div>
+  </div>
+  
+  <!-- Main Content Area -->
+  <div class="flex flex-1 overflow-hidden">
+    <!-- Sidebar -->
+    <div class="bg-base-200 border-r border-base-300 transition-all duration-300 ease-in-out flex-shrink-0"
+         [class.w-72]="sidebarOpen()" 
+         [class.w-0]="!sidebarOpen()"
+         [class.overflow-hidden]="!sidebarOpen()"
+         [class.sm:w-80]="sidebarOpen()">
+      <div class="p-3 sm:p-4 h-full overflow-y-auto" *ngIf="sidebarOpen()">
+        <div class="flex items-center justify-between mb-3 sm:mb-4">
+          <h3 class="text-base sm:text-lg font-bold">Summen</h3>
+          <button class="btn btn-ghost btn-sm min-h-10 min-w-10" (click)="toggleSidebar()" title="Sidebar ausblenden">
+            <span class="text-lg">←</span>
+          </button>
+        </div>
+        
+        <!-- Player Summary Cards -->
+        <div class="space-y-2 sm:space-y-3">
+          <div *ngFor="let p of g.players" class="card bg-base-100 shadow-sm">
+            <div class="card-body p-2 sm:p-3">
+              <h4 class="font-bold text-sm sm:text-base mb-1 sm:mb-2">{{ p.name }}</h4>
+              <div class="space-y-1 text-xs sm:text-sm">
+                <div class="flex justify-between">
+                  <span class="opacity-70">Oberer Teil:</span>
+                  <span class="font-semibold">{{ g.computed[p.id]?.upper ?? 0 }}</span>
+                </div>
+                <div class="flex justify-between">
+                  <span class="opacity-70">Bonus:</span>
+                  <span class="font-semibold">{{ g.computed[p.id]?.bonus ?? 0 }}</span>
+                </div>
+                <div class="flex justify-between">
+                  <span class="opacity-70">Unterer Teil:</span>
+                  <span class="font-semibold">{{ g.computed[p.id]?.lower ?? 0 }}</span>
+                </div>
+                <div class="divider my-1"></div>
+                <div class="flex justify-between text-sm sm:text-base font-bold">
+                  <span>Gesamt:</span>
+                  <span class="text-primary">{{ g.computed[p.id]?.total ?? 0 }}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
-    <div class="flex flex-col h-[calc(100vh-200px)]">
+    
+    <!-- Main Table Area -->
+    <div class="flex-1 flex flex-col overflow-hidden">
+      <!-- Sidebar Toggle Button (when sidebar is closed) -->
+      <div class="p-2 border-b border-base-300 bg-base-100 flex-shrink-0" *ngIf="!sidebarOpen()">
+        <button class="btn btn-ghost btn-sm min-h-10" (click)="toggleSidebar()" title="Sidebar anzeigen">
+          <span class="text-lg">→</span>
+          <span class="ml-1 hidden sm:inline">Summen anzeigen</span>
+        </button>
+      </div>
       <!-- Scrollable table content -->
       <div class="overflow-auto flex-1">
-        <table class="table table-pin-rows">
+        <table class="table table-pin-rows w-full">
           <thead class="sticky top-0 z-20 bg-base-200 shadow-sm">
             <tr>
               <th class="text-lg bg-base-200">Kategorie</th>
@@ -25,7 +83,7 @@
                 <button class="btn btn-ghost btn-sm text-left w-full justify-start hover:bg-blue-50 hover:text-blue-700" 
                         (click)="showPlayerInfo(p.id)" 
                         title="Klicken für verbleibende Kategorien">
-                  <span class="font-medium">{{p.name}}</span>
+                  <span class="font-bold text-lg">{{p.name}}</span>
                   <span class="text-xs opacity-70 ml-1">ℹ️</span>
                 </button>
               </th>
@@ -41,24 +99,24 @@
               <tr *ngFor="let c of upper; let i = index" class="border-b border-base-300" [ngClass]="{ 'bg-base-100': i % 2 === 0, 'bg-base-200': i % 2 === 1 }">
                 <td class="font-semibold">{{ label(c) }}</td>
                 <td *ngFor="let p of g.players" class="align-middle">
-                  <div class="flex items-center gap-2">
-                    <input class="input input-md input-bordered w-28 blue-outlined" [class.scored]="isLocked(p.id,c)" type="number" min="0" inputmode="numeric" pattern="[0-9]*"
+                  <div class="flex items-center gap-1">
+                    <input class="input input-sm input-bordered w-16 flex-1 max-w-20 blue-outlined" [class.scored]="isLocked(p.id,c)" type="number" min="0" inputmode="numeric" pattern="[0-9]*"
                            [disabled]="isLocked(p.id,c)" [(ngModel)]="cellValues[p.id][c]" (blur)="commit(p.id,c)" (keyup.enter)="commit(p.id,c)" />
-                    <button class="btn btn-xs btn-ghost" [disabled]="isLocked(p.id,c)" (click)="strike(p.id,c)" title="Streichen (0)">✖︎</button>
-                    <span *ngIf="upperTendency(p.id, c) as t" class="badge badge-sm px-2 py-0.5 ml-1" [class.badge-success]="t.kind==='over'" [class.badge-warning]="t.kind==='under'" [class.badge-ghost]="t.kind==='on'">{{ t.label }}</span>
+                    <button class="btn btn-sm btn-ghost min-h-10 min-w-10" [disabled]="isLocked(p.id,c)" (click)="strike(p.id,c)" title="Streichen (0)">✖︎</button>
+                    <span *ngIf="upperTendency(p.id, c) as t" class="badge badge-xs px-1 py-0.5 ml-1 hidden sm:inline-flex" [class.badge-success]="t.kind==='over'" [class.badge-warning]="t.kind==='under'" [class.badge-ghost]="t.kind==='on'">{{ t.label }}</span>
                   </div>
                 </td>
               </tr>
-              <tr class="bg-base-300 border-y-2 border-base-400">
-                <td class="font-semibold">Oberer Teil Summe</td>
-                <td class="text-xl font-extrabold" *ngFor="let p of g.players">
+              <tr class="bg-base-300 border-y-2 border-base-400 sticky top-12 z-10">
+                <td class="font-semibold bg-base-300">Oberer Teil Summe</td>
+                <td class="text-xl font-extrabold bg-base-300" *ngFor="let p of g.players">
                   {{ g.computed[p.id]?.upper ?? 0 }}
                   <span *ngIf="upperSumTendency(p.id) as t" class="badge badge-sm px-2 py-0.5 ml-2" [class.badge-success]="t.kind==='over'" [class.badge-warning]="t.kind==='under'" [class.badge-ghost]="t.kind==='on'">{{ t.label }}</span>
                 </td>
               </tr>
-              <tr class="bg-base-300 border-b-2 border-base-300">
-                <td class="font-semibold">Bonus</td>
-                <td class="text-xl font-bold" *ngFor="let p of g.players">{{ g.computed[p.id]?.bonus ?? 0 }}</td>
+              <tr class="bg-base-300 border-b-2 border-base-300 sticky top-24 z-10">
+                <td class="font-semibold bg-base-300">Bonus</td>
+                <td class="text-xl font-bold bg-base-300" *ngFor="let p of g.players">{{ g.computed[p.id]?.bonus ?? 0 }}</td>
               </tr>
               <!-- Dark separator above lower section -->
               <tr><td [attr.colspan]="1 + g.players.length" class="p-0"><div class="border-t-4 border-base-300/90"></div></td></tr>
@@ -68,63 +126,65 @@
               <tr *ngFor="let c of lower; let i = index" class="border-b border-base-300" [ngClass]="{ 'bg-base-100': i % 2 === 0, 'bg-base-200': i % 2 === 1 }">
                 <td class="font-semibold">{{ label(c) }}</td>
                 <td *ngFor="let p of g.players" class="align-middle">
-                  <div class="flex items-center gap-2">
-                    <input class="input input-md input-bordered w-28 blue-outlined" [class.scored]="isLocked(p.id,c)" type="number" min="0" inputmode="numeric" pattern="[0-9]*"
+                  <div class="flex items-center gap-1">
+                    <input class="input input-sm input-bordered w-16 flex-1 max-w-20 blue-outlined" [class.scored]="isLocked(p.id,c)" type="number" min="0" inputmode="numeric" pattern="[0-9]*"
                            [disabled]="isLocked(p.id,c)" [(ngModel)]="cellValues[p.id][c]" (blur)="commit(p.id,c)" (keyup.enter)="commit(p.id,c)" />
-                    <button class="btn btn-xs btn-ghost" [disabled]="isLocked(p.id,c)" (click)="strike(p.id,c)" title="Streichen (0)">✖︎</button>
-                    <button *ngIf="isFixedCategory(c)" class="btn btn-xs btn-outline" [disabled]="isLocked(p.id,c)"
+                    <button class="btn btn-sm btn-ghost min-h-10 min-w-10" [disabled]="isLocked(p.id,c)" (click)="strike(p.id,c)" title="Streichen (0)">✖︎</button>
+                    <button *ngIf="isFixedCategory(c)" class="btn btn-sm btn-outline min-h-10 min-w-10" [disabled]="isLocked(p.id,c)"
                             (click)="quickSet(p.id,c)" [title]="quickSetTitle(c)" aria-label="{{ quickSetTitle(c) }}">{{ fixedValue(c) }}</button>
                   </div>
                 </td>
               </tr>
-              <tr class="border-b border-base-300">
-                <td class="font-semibold">Kniffel‑Bonus</td>
-                <td *ngFor="let p of g.players" class="align-middle">
-                  <div class="flex items-center gap-2">
-                    <button class="btn btn-xs" [class.btn-ghost]="!canAdjustBonus(p.id)" [class.btn-outline]="canAdjustBonus(p.id)"
+              <tr class="border-b border-base-300 bg-base-100">
+                <td class="font-semibold bg-base-100">Kniffel‑Bonus</td>
+                <td *ngFor="let p of g.players" class="align-middle bg-base-100">
+                  <div class="flex items-center gap-1">
+                    <button class="btn btn-sm min-h-10 min-w-12" [class.btn-ghost]="!canAdjustBonus(p.id)" [class.btn-outline]="canAdjustBonus(p.id)"
                             [disabled]="!canAdjustBonus(p.id) || bonusValue(p.id) <= 0" (click)="adjustBonus(p.id,-50)">− 50</button>
-                    <input class="input input-md input-bordered w-28 blue-outlined" [value]="bonusValue(p.id)" readonly disabled />
-                    <button class="btn btn-xs" [class.btn-ghost]="!canAdjustBonus(p.id)" [class.btn-outline]="canAdjustBonus(p.id)"
+                    <input class="input input-sm input-bordered w-16 flex-1 max-w-20 blue-outlined" [value]="bonusValue(p.id)" readonly disabled />
+                    <button class="btn btn-sm min-h-10 min-w-12" [class.btn-ghost]="!canAdjustBonus(p.id)" [class.btn-outline]="canAdjustBonus(p.id)"
                             [disabled]="!canAdjustBonus(p.id)" (click)="adjustBonus(p.id,50)">+ 50</button>
                   </div>
-                  <div class="text-xs opacity-60" *ngIf="!canAdjustBonus(p.id)">Benötigt gültigen Kniffel (50)</div>
+                  <div class="text-xs opacity-60 hidden sm:block" *ngIf="!canAdjustBonus(p.id)">Benötigt gültigen Kniffel (50)</div>
                 </td>
+              </tr>
+              <!-- Unterer Teil Summe -->
+              <tr class="bg-base-300 border-y-2 border-base-400 sticky bottom-12 z-10">
+                <td class="font-semibold bg-base-300">Unterer Teil Summe</td>
+                <td class="text-xl font-extrabold tracking-wide bg-base-300" *ngFor="let p of g.players">{{ g.computed[p.id]?.lower ?? 0 }}</td>
+              </tr>
+              <!-- Gesamt -->
+              <tr class="bg-base-300 font-extrabold border-t-2 border-base-300 sticky bottom-0 z-10">
+                <td class="bg-base-300">Gesamt</td>
+                <td class="text-2xl bg-base-300" *ngFor="let p of g.players">{{ g.computed[p.id]?.total ?? 0 }}</td>
               </tr>
             </ng-container>
           </tbody>
         </table>
       </div>
-      
-      <!-- Sticky bottom summary section -->
-      <div class="bg-base-200 border-t-2 border-base-300 shadow-lg">
-        <table class="table">
-          <tbody>
-            <tr class="bg-base-300 border-y-2 border-base-400">
-              <td class="font-semibold">Unterer Teil Summe</td>
-              <td class="text-xl font-extrabold tracking-wide" *ngFor="let p of g.players">{{ g.computed[p.id]?.lower ?? 0 }}</td>
-            </tr>
-            <tr class="bg-base-300 font-extrabold border-t-2 border-base-300">
-              <td>Gesamt</td>
-              <td class="text-2xl" *ngFor="let p of g.players">{{ g.computed[p.id]?.total ?? 0 }}</td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
     </div>
-    <div class="p-4 flex flex-col md:flex-row md:justify-between gap-3 items-start md:items-center">
-      <div class="text-sm opacity-70">
-        <div>- Eingetragene Felder werden gesperrt. Zum Ändern bitte oben entsperren.</div>
-        <div>- „Streichen“ setzt den Wert auf 0 und sperrt das Feld.</div>
-      </div>
-      <div class="flex items-center gap-3 self-end md:self-auto">
-        <ng-container *ngIf="g.status === 'finished'; else activeActions">
-          <button class="btn btn-primary btn-lg" (click)="startNewGame()">Neues Spiel</button>
-        </ng-container>
-        <ng-template #activeActions>
-          <span class="opacity-70" *ngIf="!g.allFilled">Bitte alle Felder ausfüllen.</span>
-          <button class="btn btn-primary btn-lg" [disabled]="!g.allFilled" (click)="finish()">Spiel beenden & werten</button>
-        </ng-template>
-      </div>
+  </div>
+  
+  <!-- Footer -->
+  <div class="p-3 sm:p-4 flex flex-col md:flex-row md:justify-between gap-3 items-start md:items-center bg-base-100 border-t border-base-300 flex-shrink-0">
+    <div class="text-xs sm:text-sm opacity-70">
+      <div>- Eingetragene Felder werden gesperrt. Zum Ändern bitte oben entsperren.</div>
+      <div>- „Streichen" setzt den Wert auf 0 und sperrt das Feld.</div>
+    </div>
+    <div class="flex items-center gap-2 sm:gap-3 self-end md:self-auto">
+      <ng-container *ngIf="g.status === 'finished'; else activeActions">
+        <button class="btn btn-primary btn-md sm:btn-lg min-h-12" (click)="startNewGame()">
+          <span class="hidden sm:inline">Neues Spiel</span>
+          <span class="sm:hidden">Neu</span>
+        </button>
+      </ng-container>
+      <ng-template #activeActions>
+        <span class="opacity-70 text-xs sm:text-sm" *ngIf="!g.allFilled">Bitte alle Felder ausfüllen.</span>
+        <button class="btn btn-primary btn-md sm:btn-lg min-h-12" [disabled]="!g.allFilled" (click)="finish()">
+          <span class="hidden sm:inline">Spiel beenden & werten</span>
+          <span class="sm:hidden">Beenden</span>
+        </button>
+      </ng-template>
     </div>
   </div>
 </div>

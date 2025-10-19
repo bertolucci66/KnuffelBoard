@@ -25,6 +25,9 @@ export class ScoreboardComponent implements OnInit, OnDestroy {
   // Player info modal state
   isPlayerInfoOpen = signal(false);
   selectedPlayerId = signal<number | null>(null);
+  
+  // Sidebar state
+  sidebarOpen = signal(true);
 
   @Output() abort = new EventEmitter<void>();
 
@@ -40,6 +43,10 @@ export class ScoreboardComponent implements OnInit, OnDestroy {
     this.reload();
     // update every second while component is alive
     this.intervalId = setInterval(() => this.nowTick.update(v => v + 1), 1000);
+    
+    // Auto-close sidebar on small screens
+    this.checkScreenSize();
+    window.addEventListener('resize', () => this.checkScreenSize());
   }
 
   private initBuffer(g: GameState) {
@@ -54,6 +61,15 @@ export class ScoreboardComponent implements OnInit, OnDestroy {
   }
 
   toggleUnlock() { this.unlocked = !this.unlocked; }
+  
+  toggleSidebar() { this.sidebarOpen.update(open => !open); }
+  
+  private checkScreenSize() {
+    // Auto-close sidebar on screens smaller than 768px (md breakpoint)
+    if (window.innerWidth < 768 && this.sidebarOpen()) {
+      this.sidebarOpen.set(false);
+    }
+  }
 
   isLocked(playerId: number, category: string): boolean {
     const g = this.game();
@@ -299,6 +315,7 @@ export class ScoreboardComponent implements OnInit, OnDestroy {
 
   ngOnDestroy(): void {
     if (this.intervalId) clearInterval(this.intervalId);
+    window.removeEventListener('resize', () => this.checkScreenSize());
   }
 
   // Format elapsed time since game start
