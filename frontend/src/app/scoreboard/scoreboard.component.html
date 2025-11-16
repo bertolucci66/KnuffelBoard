@@ -163,7 +163,7 @@
                            [disabled]="isLocked(p.id,c)" [(ngModel)]="cellValues[p.id][c]" (blur)="commit(p.id,c)" (keyup.enter)="commit(p.id,c)" />
                     <button class="btn btn-sm btn-ghost min-h-10 min-w-10" [disabled]="isLocked(p.id,c)" (click)="strike(p.id,c)" title="Streichen (0)">✖︎</button>
                     <button *ngIf="isFixedCategory(c)" class="btn btn-sm btn-outline min-h-10 min-w-10" [disabled]="isLocked(p.id,c)"
-                            (click)="quickSet(p.id,c)" [title]="quickSetTitle(c)" aria-label="{{ quickSetTitle(c) }}">{{ fixedValue(c) }}</button>
+                            (click)="quickSet(p.id,c)" [title]="quickSetTitle(c)" [attr.aria-label]="quickSetTitle(c)">{{ fixedValue(c) }}</button>
                   </div>
                 </td>
               </tr>
