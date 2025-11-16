@@ -12,6 +12,7 @@ const LOWER = ['three_kind','four_kind','full_house','small_straight','large_str
   standalone: true,
   imports: [CommonModule, FormsModule, RankingModalComponent],
   templateUrl: './scoreboard.component.html',
+  styleUrls: ['./scoreboard.component.scss'],
 })
 export class ScoreboardComponent implements OnInit, OnDestroy {
   private gameService = inject(GameService);
@@ -25,7 +26,10 @@ export class ScoreboardComponent implements OnInit, OnDestroy {
   // Player info modal state
   isPlayerInfoOpen = signal(false);
   selectedPlayerId = signal<number | null>(null);
-  
+
+  // Help modal state
+  isHelpOpen = signal(false);
+
   // Sidebar state
   sidebarOpen = signal(true);
 
@@ -91,7 +95,16 @@ export class ScoreboardComponent implements OnInit, OnDestroy {
     this.isPlayerInfoOpen.set(false);
     this.selectedPlayerId.set(null);
   }
-  
+
+  // Help modal methods
+  toggleHelp() {
+    this.isHelpOpen.update(open => !open);
+  }
+
+  closeHelp() {
+    this.isHelpOpen.set(false);
+  }
+
   getPlayerName(playerId: number | null): string {
     if (playerId === null) return '';
     const g = this.game();
