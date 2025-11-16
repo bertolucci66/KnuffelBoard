@@ -1,19 +1,19 @@
 <div *ngIf="game() as g" class="h-screen flex flex-col w-full">
+  <!-- Floating Finish Game Button (always visible at top when all fields filled) -->
+  <div class="fixed top-4 left-1/2 -translate-x-1/2 z-[60]" *ngIf="g.status === 'active' && g.allFilled">
+    <button class="btn btn-primary btn-lg shadow-2xl finish-game-btn" (click)="finish()">
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+      </svg>
+      <span class="hidden sm:inline font-bold">Spiel beenden & werten</span>
+      <span class="sm:hidden font-bold">Beenden</span>
+    </button>
+  </div>
+
   <!-- Header -->
-  <div class="relative flex items-center justify-between p-3 border-b border-base-300 bg-base-200/60 flex-shrink-0">
+  <div class="flex items-center justify-between p-3 border-b border-base-300 bg-base-200/60 flex-shrink-0">
     <div class="h3 m-0">Spielzettel
       <div class="text-xs opacity-70 font-normal">Erstellt von Norbert Gutbrod</div>
-    </div>
-
-    <!-- Finish Game Button (centered, animated, shown when all fields are filled) -->
-    <div class="absolute left-1/2 -translate-x-1/2 top-3" *ngIf="g.status === 'active' && g.allFilled">
-      <button class="btn btn-primary btn-lg shadow-lg finish-game-btn" (click)="finish()">
-        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-        </svg>
-        <span class="hidden sm:inline">Spiel beenden & werten</span>
-        <span class="sm:hidden">Beenden</span>
-      </button>
     </div>
 
     <div class="flex items-center gap-1 sm:gap-2">
