@@ -331,4 +331,46 @@ export class ScoreboardComponent implements OnInit, OnDestroy {
     const pad = (n:number) => n.toString().padStart(2,'0');
     return `${pad(h)}:${pad(m)}:${pad(sec)}`;
   }
+
+  // Determine the next player (player with fewest filled categories)
+  getNextPlayer(): number | null {
+    const g = this.game();
+    if (!g || g.status !== 'active') return null;
+
+    const allCategories = [...this.upper, ...this.lower];
+    let minFilled = Infinity;
+    let nextPlayerId: number | null = null;
+
+    // Sort players by order_index to ensure consistent tie-breaking
+    const sortedPlayers = [...g.players].sort((a, b) => a.order_index - b.order_index);
+
+    for (const p of sortedPlayers) {
+      const playerScores = g.scores?.[p.id] || {};
+      const filledCount = allCategories.filter(cat => typeof playerScores[cat] === 'number').length;
+
+      if (filledCount < minFilled) {
+        minFilled = filledCount;
+        nextPlayerId = p.id;
+      }
+    }
+
+    return nextPlayerId;
+  }
+
+  // Check if a player is the next player
+  isNextPlayer(playerId: number): boolean {
+    return this.getNextPlayer() === playerId;
+  }
+
+  // Get progress percentage for a player
+  getPlayerProgress(playerId: number): number {
+    const g = this.game();
+    if (!g) return 0;
+
+    const allCategories = [...this.upper, ...this.lower];
+    const playerScores = g.scores?.[playerId] || {};
+    const filledCount = allCategories.filter(cat => typeof playerScores[cat] === 'number').length;
+
+    return Math.round((filledCount / allCategories.length) * 100);
+  }
  }
