@@ -1,9 +1,7 @@
 <div *ngIf="game() as g" class="h-screen flex flex-col w-full">
   <!-- Header -->
   <div class="relative flex items-center justify-between p-3 border-b border-base-300 bg-base-200/60 flex-shrink-0">
-    <div class="h3 m-0">Spielzettel
-      <div class="text-xs opacity-70 font-normal">Erstellt von Norbert Gutbrod</div>
-    </div>
+    <div class="h3 m-0">Spielzettel</div>
 
     <!-- Finish Game Button (centered, animated, shown when all fields are filled) -->
     <div class="absolute left-1/2 -translate-x-1/2 top-3" *ngIf="g.status === 'active' && g.allFilled">
