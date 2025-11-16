@@ -1,11 +1,28 @@
 <div *ngIf="game() as g" class="h-screen flex flex-col w-full">
   <!-- Header -->
-  <div class="flex items-center justify-between p-3 border-b border-base-300 bg-base-200/60 flex-shrink-0">
+  <div class="relative flex items-center justify-between p-3 border-b border-base-300 bg-base-200/60 flex-shrink-0">
     <div class="h3 m-0">Spielzettel
       <div class="text-xs opacity-70 font-normal">Erstellt von Norbert Gutbrod</div>
     </div>
+
+    <!-- Finish Game Button (centered, animated, shown when all fields are filled) -->
+    <div class="absolute left-1/2 -translate-x-1/2 top-3" *ngIf="g.status === 'active' && g.allFilled">
+      <button class="btn btn-primary btn-lg shadow-lg finish-game-btn" (click)="finish()">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+        </svg>
+        <span class="hidden sm:inline">Spiel beenden & werten</span>
+        <span class="sm:hidden">Beenden</span>
+      </button>
+    </div>
+
     <div class="flex items-center gap-1 sm:gap-2">
       <span class="badge badge-ghost text-xs sm:text-sm" *ngIf="g.status==='active'">Laufzeit: {{ elapsed() }}</span>
+      <button class="btn btn-circle btn-ghost btn-sm sm:btn-md" (click)="toggleHelp()" title="Hilfe anzeigen">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 sm:h-6 sm:w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+        </svg>
+      </button>
       <button class="btn btn-error btn-sm sm:btn-md min-h-10" (click)="requestAbort()" title="Neues Spiel starten – aktuelles verwerfen">
         <span class="hidden sm:inline">Neues Spiel</span>
         <span class="sm:hidden">Neu</span>
@@ -199,29 +216,6 @@
       </div>
     </div>
   </div>
-  
-  <!-- Footer -->
-  <div class="p-3 sm:p-4 flex flex-col md:flex-row md:justify-between gap-3 items-start md:items-center bg-base-100 border-t border-base-300 flex-shrink-0">
-    <div class="text-xs sm:text-sm opacity-70">
-      <div>- Eingetragene Felder werden gesperrt. Zum Ändern bitte oben entsperren.</div>
-      <div>- „Streichen" setzt den Wert auf 0 und sperrt das Feld.</div>
-    </div>
-    <div class="flex items-center gap-2 sm:gap-3 self-end md:self-auto">
-      <ng-container *ngIf="g.status === 'finished'; else activeActions">
-        <button class="btn btn-primary btn-md sm:btn-lg min-h-12" (click)="startNewGame()">
-          <span class="hidden sm:inline">Neues Spiel</span>
-          <span class="sm:hidden">Neu</span>
-        </button>
-      </ng-container>
-      <ng-template #activeActions>
-        <span class="opacity-70 text-xs sm:text-sm" *ngIf="!g.allFilled">Bitte alle Felder ausfüllen.</span>
-        <button class="btn btn-primary btn-md sm:btn-lg min-h-12" [disabled]="!g.allFilled" (click)="finish()">
-          <span class="hidden sm:inline">Spiel beenden & werten</span>
-          <span class="sm:hidden">Beenden</span>
-        </button>
-      </ng-template>
-    </div>
-  </div>
 </div>
 <app-ranking-modal [open]="isRanking()" [ranking]="ranking()" [onClose]="closeRanking"></app-ranking-modal>
 
@@ -271,4 +265,147 @@
     </div>
   </div>
   <div class="modal-backdrop" (click)="closePlayerInfo()"></div>
+</div>
+
+<!-- Help Modal -->
+<div class="modal" [class.modal-open]="isHelpOpen()">
+  <div class="modal-box max-w-3xl">
+    <div class="flex items-center justify-between mb-6">
+      <h3 class="font-bold text-2xl flex items-center gap-2">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-7 w-7 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+        </svg>
+        Hilfe & Spielanleitung
+      </h3>
+      <button class="btn btn-ghost btn-sm btn-circle" (click)="closeHelp()">✕</button>
+    </div>
+
+    <div class="space-y-6">
+      <!-- Game Overview -->
+      <div class="card bg-base-200">
+        <div class="card-body p-4">
+          <h4 class="card-title text-lg flex items-center gap-2">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-info" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+            </svg>
+            Spielübersicht
+          </h4>
+          <p class="text-sm opacity-90">
+            KnuffelBoard ist ein digitaler Spielzettel für das beliebte Würfelspiel Kniffel (Yahtzee).
+            Tragen Sie Ihre Würfelergebnisse ein, und die Punkte werden automatisch berechnet.
+          </p>
+        </div>
+      </div>
+
+      <!-- Scoring Guide -->
+      <div class="card bg-base-200">
+        <div class="card-body p-4">
+          <h4 class="card-title text-lg flex items-center gap-2">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-success" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+            </svg>
+            Wertungen eintragen
+          </h4>
+          <div class="space-y-2 text-sm">
+            <div class="flex items-start gap-2">
+              <span class="font-bold text-primary">1.</span>
+              <div>
+                <strong>Klicken Sie auf ein Eingabefeld</strong> der aktiven Spieler-Spalte und geben Sie Ihre Punktzahl ein.
+              </div>
+            </div>
+            <div class="flex items-start gap-2">
+              <span class="font-bold text-primary">2.</span>
+              <div>
+                <strong>Bestätigen Sie mit Enter</strong> oder durch Klick außerhalb des Feldes – das Feld wird dann gesperrt.
+              </div>
+            </div>
+            <div class="flex items-start gap-2">
+              <span class="font-bold text-primary">3.</span>
+              <div>
+                <strong>Nutzen Sie "✖︎"</strong> um eine Kategorie zu streichen (Wert wird auf 0 gesetzt und gesperrt).
+              </div>
+            </div>
+            <div class="flex items-start gap-2">
+              <span class="font-bold text-primary">4.</span>
+              <div>
+                <strong>Quick-Set Buttons</strong> (25, 30, 40, 50) setzen die Werte für Full House, Straßen und Kniffel direkt.
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Locking & Unlocking -->
+      <div class="card bg-base-200">
+        <div class="card-body p-4">
+          <h4 class="card-title text-lg flex items-center gap-2">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-warning" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+            </svg>
+            Felder entsperren
+          </h4>
+          <p class="text-sm opacity-90">
+            Eingetragene Felder werden automatisch gesperrt. Um Änderungen vorzunehmen,
+            klicken Sie oben rechts auf <strong>"Entsperren" 🔓</strong>. Danach können Sie alle Felder bearbeiten.
+            Vergessen Sie nicht, anschließend wieder zu <strong>"Sperren" 🔒</strong>.
+          </p>
+        </div>
+      </div>
+
+      <!-- Bonus System -->
+      <div class="card bg-base-200">
+        <div class="card-body p-4">
+          <h4 class="card-title text-lg flex items-center gap-2">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-accent" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            Bonus-System
+          </h4>
+          <div class="space-y-2 text-sm opacity-90">
+            <p>
+              <strong>Oberer Teil Bonus:</strong> Erreichen Sie mindestens 63 Punkte im oberen Teil,
+              erhalten Sie automatisch 35 Bonuspunkte.
+            </p>
+            <p>
+              <strong>Kniffel-Bonus:</strong> Haben Sie bereits einen gültigen Kniffel (50 Punkte) eingetragen,
+              können Sie für jeden weiteren Kniffel +50 Bonuspunkte hinzufügen.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Finishing the Game -->
+      <div class="card bg-primary text-primary-content">
+        <div class="card-body p-4">
+          <h4 class="card-title text-lg flex items-center gap-2">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            Spiel beenden
+          </h4>
+          <p class="text-sm opacity-90">
+            Sobald alle Kategorien für alle Spieler ausgefüllt sind, erscheint oben mittig der Button
+            <strong>"Spiel beenden & werten"</strong>. Nach dem Klick wird das Endergebnis angezeigt
+            und der Gewinner ermittelt.
+          </p>
+        </div>
+      </div>
+
+      <!-- Tips -->
+      <div class="alert alert-info">
+        <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+        </svg>
+        <div class="text-sm">
+          <strong>Tipp:</strong> Die aktive Spielerspalte ist gelb markiert.
+          Die Sidebar zeigt den Fortschritt und die aktuellen Summen aller Spieler an.
+        </div>
+      </div>
+    </div>
+
+    <div class="modal-action">
+      <button class="btn btn-primary" (click)="closeHelp()">Verstanden</button>
+    </div>
+  </div>
+  <div class="modal-backdrop" (click)="closeHelp()"></div>
 </div>
