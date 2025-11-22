@@ -55,13 +55,16 @@
         <div class="space-y-2 sm:space-y-3">
           <div *ngFor="let p of g.players" class="card bg-base-100 shadow-sm transition-all duration-300"
                [class.ring-2]="isNextPlayer(p.id) && g.status === 'active'"
-               [class.ring-emerald-500]="isNextPlayer(p.id) && g.status === 'active'"
+               [class.ring-amber-400]="isNextPlayer(p.id) && g.status === 'active'"
                [class.shadow-lg]="isNextPlayer(p.id) && g.status === 'active'">
             <div class="card-body p-2 sm:p-3">
               <div class="flex items-center justify-between mb-1 sm:mb-2">
-                <h4 class="font-bold text-sm sm:text-base">{{ p.name }}</h4>
+                <div class="flex items-center gap-2">
+                  <span class="text-2xl">{{ p.avatar || '👤' }}</span>
+                  <h4 class="font-bold text-sm sm:text-base">{{ p.name }}</h4>
+                </div>
                 <span *ngIf="isNextPlayer(p.id) && g.status === 'active'"
-                      class="badge badge-success badge-sm">Aktiv</span>
+                      class="badge badge-warning badge-sm">Aktiv</span>
               </div>
 
               <!-- Progress Bar -->
@@ -116,18 +119,18 @@
             <tr>
               <th class="text-lg bg-base-200">Kategorie</th>
               <th class="text-lg bg-base-200 transition-all duration-300" *ngFor="let p of g.players"
-                  [class.bg-emerald-50]="isNextPlayer(p.id) && g.status === 'active'"
+                  [class.bg-amber-50]="isNextPlayer(p.id) && g.status === 'active'"
                   [class.ring-2]="isNextPlayer(p.id) && g.status === 'active'"
-                  [class.ring-emerald-500]="isNextPlayer(p.id) && g.status === 'active'"
+                  [class.ring-amber-400]="isNextPlayer(p.id) && g.status === 'active'"
                   [class.ring-inset]="isNextPlayer(p.id) && g.status === 'active'">
-                <button class="btn btn-ghost btn-md text-left w-full justify-start hover:bg-emerald-50 hover:text-emerald-700 group px-3 py-2"
+                <button class="btn btn-ghost btn-sm text-left w-full justify-start hover:bg-blue-50 hover:text-blue-700"
                         (click)="showPlayerInfo(p.id)"
                         title="Klicken für verbleibende Kategorien">
-                  <span class="font-bold text-xl tracking-wide"
-                        [class.text-emerald-700]="isNextPlayer(p.id) && g.status === 'active'">{{p.name}}</span>
-                  <span class="text-2xl ml-2 opacity-60 group-hover:opacity-100 transition-opacity">ℹ️</span>
+                  <span class="text-2xl mr-2">{{ p.avatar || '👤' }}</span>
+                  <span class="font-bold text-lg"
+                        [class.text-amber-700]="isNextPlayer(p.id) && g.status === 'active'">{{p.name}}</span>
                   <span *ngIf="isNextPlayer(p.id) && g.status === 'active'"
-                        class="badge badge-success badge-sm ml-2 font-semibold">Aktiv</span>
+                        class="badge badge-warning badge-xs ml-2">Aktiv</span>
                 </button>
               </th>
             </tr>
@@ -142,8 +145,8 @@
               <tr *ngFor="let c of upper; let i = index" class="border-b border-base-300" [ngClass]="{ 'bg-base-100': i % 2 === 0, 'bg-base-200': i % 2 === 1 }">
                 <td class="font-semibold">{{ label(c) }}</td>
                 <td *ngFor="let p of g.players" class="align-middle transition-all duration-200"
-                    [class.bg-emerald-50]="isNextPlayer(p.id) && g.status === 'active' && i % 2 === 0"
-                    [class.bg-emerald-100]="isNextPlayer(p.id) && g.status === 'active' && i % 2 === 1">
+                    [class.bg-amber-50]="isNextPlayer(p.id) && g.status === 'active' && i % 2 === 0"
+                    [class.bg-amber-100]="isNextPlayer(p.id) && g.status === 'active' && i % 2 === 1">
                   <div class="flex items-center gap-1">
                     <input class="input input-sm input-bordered w-16 flex-1 max-w-20 blue-outlined" [class.scored]="isLocked(p.id,c)" type="number" min="0" inputmode="numeric" pattern="[0-9]*"
                            [disabled]="isLocked(p.id,c)" [(ngModel)]="cellValues[p.id][c]" (blur)="commit(p.id,c)" (keyup.enter)="commit(p.id,c)" />
@@ -155,7 +158,7 @@
               <tr class="bg-base-300 border-y-2 border-base-400 sticky top-12 z-10 hidden md:table-row">
                 <td class="font-semibold bg-base-300">Oberer Teil Summe</td>
                 <td class="text-xl font-extrabold bg-base-300 transition-all duration-200" *ngFor="let p of g.players"
-                    [class.!bg-emerald-200]="isNextPlayer(p.id) && g.status === 'active'">
+                    [class.!bg-amber-200]="isNextPlayer(p.id) && g.status === 'active'">
                   {{ g.computed[p.id]?.upper ?? 0 }}
                   <span *ngIf="upperSumTendency(p.id) as t" class="badge badge-sm px-2 py-0.5 ml-2" [class.badge-success]="t.kind==='over'" [class.badge-warning]="t.kind==='under'" [class.badge-ghost]="t.kind==='on'">{{ t.label }}</span>
                 </td>
@@ -163,7 +166,7 @@
               <tr class="bg-base-300 border-b-2 border-base-300 sticky top-24 z-10 hidden md:table-row">
                 <td class="font-semibold bg-base-300">Bonus</td>
                 <td class="text-xl font-bold bg-base-300 transition-all duration-200" *ngFor="let p of g.players"
-                    [class.!bg-emerald-200]="isNextPlayer(p.id) && g.status === 'active'">{{ g.computed[p.id]?.bonus ?? 0 }}</td>
+                    [class.!bg-amber-200]="isNextPlayer(p.id) && g.status === 'active'">{{ g.computed[p.id]?.bonus ?? 0 }}</td>
               </tr>
               <!-- Dark separator above lower section -->
               <tr><td [attr.colspan]="1 + g.players.length" class="p-0"><div class="border-t-4 border-base-300/90"></div></td></tr>
@@ -173,8 +176,8 @@
               <tr *ngFor="let c of lower; let i = index" class="border-b border-base-300" [ngClass]="{ 'bg-base-100': i % 2 === 0, 'bg-base-200': i % 2 === 1 }">
                 <td class="font-semibold">{{ label(c) }}</td>
                 <td *ngFor="let p of g.players" class="align-middle transition-all duration-200"
-                    [class.bg-emerald-50]="isNextPlayer(p.id) && g.status === 'active' && i % 2 === 0"
-                    [class.bg-emerald-100]="isNextPlayer(p.id) && g.status === 'active' && i % 2 === 1">
+                    [class.bg-amber-50]="isNextPlayer(p.id) && g.status === 'active' && i % 2 === 0"
+                    [class.bg-amber-100]="isNextPlayer(p.id) && g.status === 'active' && i % 2 === 1">
                   <div class="flex items-center gap-1">
                     <input class="input input-sm input-bordered w-16 flex-1 max-w-20 blue-outlined" [class.scored]="isLocked(p.id,c)" type="number" min="0" inputmode="numeric" pattern="[0-9]*"
                            [disabled]="isLocked(p.id,c)" [(ngModel)]="cellValues[p.id][c]" (blur)="commit(p.id,c)" (keyup.enter)="commit(p.id,c)" />
@@ -187,7 +190,7 @@
               <tr class="border-b border-base-300 bg-base-100">
                 <td class="font-semibold bg-base-100">Kniffel‑Bonus</td>
                 <td *ngFor="let p of g.players" class="align-middle bg-base-100 transition-all duration-200"
-                    [class.!bg-emerald-50]="isNextPlayer(p.id) && g.status === 'active'">
+                    [class.!bg-amber-50]="isNextPlayer(p.id) && g.status === 'active'">
                   <div class="flex items-center gap-1">
                     <button class="btn btn-sm min-h-10 min-w-12" [class.btn-ghost]="!canAdjustBonus(p.id)" [class.btn-outline]="canAdjustBonus(p.id)"
                             [disabled]="!canAdjustBonus(p.id) || bonusValue(p.id) <= 0" (click)="adjustBonus(p.id,-50)">− 50</button>
@@ -202,13 +205,13 @@
               <tr class="bg-base-300 border-y-2 border-base-400 sticky bottom-12 z-10 hidden md:table-row">
                 <td class="font-semibold bg-base-300">Unterer Teil Summe</td>
                 <td class="text-xl font-extrabold tracking-wide bg-base-300 transition-all duration-200" *ngFor="let p of g.players"
-                    [class.!bg-emerald-200]="isNextPlayer(p.id) && g.status === 'active'">{{ g.computed[p.id]?.lower ?? 0 }}</td>
+                    [class.!bg-amber-200]="isNextPlayer(p.id) && g.status === 'active'">{{ g.computed[p.id]?.lower ?? 0 }}</td>
               </tr>
               <!-- Gesamt -->
               <tr class="bg-base-300 font-extrabold border-t-2 border-base-300 sticky bottom-0 z-10 hidden md:table-row">
                 <td class="bg-base-300">Gesamt</td>
                 <td class="text-2xl bg-base-300 transition-all duration-200" *ngFor="let p of g.players"
-                    [class.!bg-emerald-200]="isNextPlayer(p.id) && g.status === 'active'">{{ g.computed[p.id]?.total ?? 0 }}</td>
+                    [class.!bg-amber-200]="isNextPlayer(p.id) && g.status === 'active'">{{ g.computed[p.id]?.total ?? 0 }}</td>
               </tr>
             </ng-container>
           </tbody>
@@ -397,7 +400,7 @@
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
         </svg>
         <div class="text-sm">
-          <strong>Tipp:</strong> Die aktive Spielerspalte ist grün markiert.
+          <strong>Tipp:</strong> Die aktive Spielerspalte ist gelb markiert.
           Die Sidebar zeigt den Fortschritt und die aktuellen Summen aller Spieler an.
         </div>
       </div>

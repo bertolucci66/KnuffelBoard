@@ -6,6 +6,8 @@ import { RankingModalComponent, RankingEntry } from '../ranking-modal/ranking-mo
 
 const UPPER = ['ones','twos','threes','fours','fives','sixes'];
 const LOWER = ['three_kind','four_kind','full_house','small_straight','large_straight','kniffel','chance'];
+const AVATARS = ['🐶', '🐱', '🐭', '🐹', '🐰', '🦊', '🐻', '🐼', '🐨', '🐯', '🦁', '🐮', '🐷', '🐸', '🐵', '🐔', '🐧', '🐦', '🦆', '🦉', '🦄', '🐝', '🐛', '🦋', '🐌', '🐙', '🦀', '🐡', '🐠', '🐬', '🦈', '🐊', '🦎', '🦖', '🦕', '🎃', '🎩', '🎸', '🎺', '🚀', '🛸', '🎯', '🎲', '🎪', '🎭', '🎨', '🍕', '🍔', '🍩', '🍪', '🧁'];
+
 
 @Component({
   selector: 'app-scoreboard',
@@ -62,6 +64,18 @@ export class ScoreboardComponent implements OnInit, OnDestroy {
         this.cellValues[p.id][c] = (typeof v === 'number') ? String(v) : '';
       }
     }
+  }
+
+  private assignAvatars(g: GameState) {
+    // Create a shuffled copy of avatars
+    const availableAvatars = [...AVATARS].sort(() => Math.random() - 0.5);
+
+    // Assign avatars to players that don't have one yet
+    g.players.forEach((player, index) => {
+      if (!player.avatar) {
+        player.avatar = availableAvatars[index % availableAvatars.length];
+      }
+    });
   }
 
   toggleUnlock() { this.unlocked = !this.unlocked; }
@@ -138,6 +152,7 @@ export class ScoreboardComponent implements OnInit, OnDestroy {
 
   reload() {
     this.gameService.getGame(this.gameId).subscribe(g => {
+      this.assignAvatars(g);
       this.game.set(g);
       this.initBuffer(g);
       // persist active game id for resume if needed
