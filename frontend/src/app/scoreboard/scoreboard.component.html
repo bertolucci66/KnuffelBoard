@@ -59,7 +59,10 @@
                [class.shadow-lg]="isNextPlayer(p.id) && g.status === 'active'">
             <div class="card-body p-2 sm:p-3">
               <div class="flex items-center justify-between mb-1 sm:mb-2">
-                <h4 class="font-bold text-sm sm:text-base">{{ p.name }}</h4>
+                <div class="flex items-center gap-2">
+                  <span class="text-2xl">{{ p.avatar || '👤' }}</span>
+                  <h4 class="font-bold text-sm sm:text-base">{{ p.name }}</h4>
+                </div>
                 <span *ngIf="isNextPlayer(p.id) && g.status === 'active'"
                       class="badge badge-warning badge-sm">Aktiv</span>
               </div>
@@ -123,9 +126,9 @@
                 <button class="btn btn-ghost btn-sm text-left w-full justify-start hover:bg-blue-50 hover:text-blue-700"
                         (click)="showPlayerInfo(p.id)"
                         title="Klicken für verbleibende Kategorien">
+                  <span class="text-2xl mr-2">{{ p.avatar || '👤' }}</span>
                   <span class="font-bold text-lg"
                         [class.text-amber-700]="isNextPlayer(p.id) && g.status === 'active'">{{p.name}}</span>
-                  <span class="text-xs opacity-70 ml-1">ℹ️</span>
                   <span *ngIf="isNextPlayer(p.id) && g.status === 'active'"
                         class="badge badge-warning badge-xs ml-2">Aktiv</span>
                 </button>

@@ -2,7 +2,7 @@ import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable, map } from 'rxjs';
 
-export type Player = { id: number; name: string; order_index: number };
+export type Player = { id: number; name: string; order_index: number; avatar?: string };
 export type GameState = {
   id: number;
   started_at: string;
